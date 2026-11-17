@@ -40,7 +40,15 @@ For Laravel security vulnerabilities, contact Taylor Otwell at [taylor@laravel.c
 
 ## Deploying to Render
 
-This repository includes a Render Blueprint and Dockerfile. Create a Blueprint from render.yaml; Render will build the app, run migrations, and safely insert the sample cottage and room listings when the service starts. The listings seeders only add records with missing codes and do not seed demo accounts or truncate production data. The Blueprint references the existing palaycheck-db PostgreSQL instance and creates a separate oliyettebook schema for this app.
+The Render entrypoint creates or updates the demo administrator after every migration:
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | `admin@oliyettebook.test` | `Admin@123` |
+
+These values are configurable in `render.yaml` with `DEMO_ADMIN_EMAIL` and `DEMO_ADMIN_PASSWORD`.
+
+This repository includes a Render Blueprint and Dockerfile. Create a Blueprint from `render.yaml`; Render will build the app, run migrations, and safely insert the sample cottage and room listings when the service starts. The listings seeders only add records with missing codes and do not truncate production data. The Blueprint references the existing `palaycheck-db` PostgreSQL instance and creates a separate `oliyettebook` schema for this app.
 
 The included Blueprint uses Render's free web-service plan for preview/testing only. Free web services can spin down while idle, and the shared free PostgreSQL database expires after 30 days and does not include backups. Local uploads are also not persistent across redeploys. Do not use this configuration for real bookings or customer information; configure paid persistent storage and a durable database before production use.
 
