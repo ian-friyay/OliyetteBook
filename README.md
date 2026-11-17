@@ -61,7 +61,7 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 ## Deploying to Render
 
-This repository includes a Render Blueprint and Dockerfile. Create a Blueprint from the render.yaml file; Render will build the app and run migrations when the service starts. The Blueprint references the existing palaycheck-db PostgreSQL instance and creates a separate oliyettebook schema for this app. The app does not seed demo accounts in production.
+This repository includes a Render Blueprint and Dockerfile. Create a Blueprint from the render.yaml file; Render will build the app and run migrations when the service starts. The Blueprint references the existing palaycheck-db PostgreSQL instance and creates a separate oliyettebook schema for this app. The app does not seed demo accounts in production. When the service starts, it safely adds the project sample cottages and placeholder photos if missing, without truncating production data.
 
 The included Blueprint uses Render's free web-service plan for preview/testing only. Free web services can spin down while idle, and the shared free PostgreSQL database expires after 30 days and does not include backups. Local uploads are also not persistent across redeploys. Do not use this configuration for real bookings or customer information; configure paid persistent storage and a durable database before production use.
 
