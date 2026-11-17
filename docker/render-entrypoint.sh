@@ -13,6 +13,7 @@ sed -ri "s/<VirtualHost \\*:80>/<VirtualHost *:${port}>/" /etc/apache2/sites-ava
 
 php docker/create-schema.php
 php artisan migrate --force
+php artisan db:seed --class='Database\Seeders\SampleCottagesSeeder' --force
 php artisan config:cache
 php artisan view:cache
 
