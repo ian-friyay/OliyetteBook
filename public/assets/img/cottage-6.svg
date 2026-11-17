@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Cliffside retreat overlooking the sea">
+  <defs>
+    <linearGradient id="sky6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C4DDE9"/>
+      <stop offset="1" stop-color="#F4E1C8"/>
+    </linearGradient>
+    <linearGradient id="sea6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#4F93B0"/>
+      <stop offset="1" stop-color="#2A6483"/>
+    </linearGradient>
+    <linearGradient id="rock6" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B08B66"/>
+      <stop offset="1" stop-color="#82613F"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky6)"/>
+  <circle cx="178" cy="96" r="46" fill="#E7B36A" opacity=".85"/>
+  <path d="M0 300h800v200H0Z" fill="url(#sea6)"/>
+  <path d="M0 330c60-14 120-14 180 0s120 14 180 0 120-14 180 0 120 14 180 0 80-10 80-10v28c-60 12-120 12-180 0s-120-12-180 0-120 12-180 0-120-12-180 0S0 360 0 360Z" fill="#78AEC5" opacity=".65"/>
+  <path d="M402 500V352c44-30 96-40 152-24 42 12 86 14 128 4 40-10 76-6 118 14v154Z" fill="url(#rock6)"/>
+  <path d="M470 366c40-16 82-16 122 0" fill="none" stroke="#9C7650" stroke-width="8" stroke-linecap="round" opacity=".7"/>
+  <path d="M520 410c44-16 90-16 134 0" fill="none" stroke="#9C7650" stroke-width="8" stroke-linecap="round" opacity=".55"/>
+  <path d="M470 338v-92h244v92" fill="#F7EDDD"/>
+  <path d="M452 246h280l-40-66H492Z" fill="#8C5A2B"/>
+  <path d="M452 246h280v14H452Z" fill="#6E4520"/>
+  <rect x="498" y="274" width="52" height="64" rx="3" fill="#7A4E27"/>
+  <rect x="578" y="274" width="52" height="64" rx="3" fill="#7A4E27"/>
+  <rect x="650" y="274" width="46" height="64" rx="3" fill="#7A4E27"/>
+  <path d="M466 258h252" stroke="#C9A97F" stroke-width="6" stroke-linecap="round"/>
+  <path d="M442 338h272" stroke="#E4D3B6" stroke-width="6" stroke-linecap="round"/>
+  <path d="M442 338v-44M714 338v-44" stroke="#E4D3B6" stroke-width="5" stroke-linecap="round"/>
+  <path d="M330 394V286" stroke="#7A5A38" stroke-width="13" stroke-linecap="round"/>
+  <path d="M330 290c-38-28-82-28-112-2 36-10 76-4 112 20Z" fill="#3F7D58"/>
+  <path d="M330 290c30-34 74-40 108-18-40-4-78 10-108 42Z" fill="#4C9565"/>
+  <path d="M330 290c-16-42-4-84 28-108-14 38-14 74-4 108Z" fill="#3F7D58"/>
+  <path d="M62 86c20-14 40-14 60 0s40 14 60 0" fill="none" stroke="#FFFFFF" stroke-width="8" stroke-linecap="round" opacity=".65"/>
+  <path d="M632 158c14-10 28-10 42 0s28 10 42 0" fill="none" stroke="#FFFFFF" stroke-width="6" stroke-linecap="round" opacity=".55"/>
+</svg>

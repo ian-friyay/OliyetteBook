@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Seaside bamboo cottage">
+  <defs>
+    <linearGradient id="sky1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#BFD9E8"/>
+      <stop offset="1" stop-color="#F3D9B5"/>
+    </linearGradient>
+    <linearGradient id="sea1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#457B9D"/>
+      <stop offset="1" stop-color="#2E6280"/>
+    </linearGradient>
+    <linearGradient id="sand1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F6E3C5"/>
+      <stop offset="1" stop-color="#E8CBA0"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky1)"/>
+  <circle cx="650" cy="105" r="52" fill="#E6A85C" opacity=".9"/>
+  <path d="M0 300h800v200H0Z" fill="url(#sea1)"/>
+  <path d="M0 330c60-14 120-14 180 0s120 14 180 0 120-14 180 0 120 14 180 0 80-10 80-10v30c-60 12-120 12-180 0s-120-12-180 0-120 12-180 0-120-12-180 0S0 360 0 360Z" fill="#5B93B3" opacity=".7"/>
+  <path d="M0 395c70-18 140-18 210 0s140 18 210 0 140-18 210 0 122 16 170 12v93H0Z" fill="url(#sand1)"/>
+  <path d="M163 388v-95h230v95" fill="#E9D3AF"/>
+  <path d="M143 296h270l-38-65H181Z" fill="#8C5A2B"/>
+  <path d="M143 296h270v16H143Z" fill="#6E4520"/>
+  <rect x="196" y="322" width="52" height="66" rx="3" fill="#7A4E27"/>
+  <rect x="288" y="322" width="52" height="66" rx="3" fill="#7A4E27"/>
+  <rect x="366" y="322" width="52" height="66" rx="3" fill="#7A4E27"/>
+  <path d="M156 318h232" stroke="#C9A97F" stroke-width="6" stroke-linecap="round"/>
+  <path d="M520 392V252" stroke="#7A5A38" stroke-width="14" stroke-linecap="round"/>
+  <path d="M520 256c-44-30-92-26-122 4 40-12 84-4 122 22Z" fill="#3F7D58"/>
+  <path d="M520 256c34-36 84-42 122-20-42-4-86 10-122 46Z" fill="#4C9565"/>
+  <path d="M520 256c-18-46-4-94 30-118-16 42-16 82-6 118Z" fill="#3F7D58"/>
+  <path d="M520 256c26-20 66-16 88 10-30-10-58-8-88 14Z" fill="#4C9565"/>
+  <circle cx="586" cy="212" r="9" fill="#8A5A2F"/>
+  <circle cx="610" cy="236" r="9" fill="#8A5A2F"/>
+  <circle cx="566" cy="238" r="9" fill="#8A5A2F"/>
+  <rect x="70" y="424" width="120" height="10" rx="5" fill="#D9B88C" opacity=".8"/>
+  <rect x="600" y="440" width="150" height="10" rx="5" fill="#D9B88C" opacity=".8"/>
+</svg>

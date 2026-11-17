@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" role="img" aria-label="Ocean breeze villa by the shore">
+  <defs>
+    <linearGradient id="sky4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B9DCEA"/>
+      <stop offset="1" stop-color="#F7E3C6"/>
+    </linearGradient>
+    <linearGradient id="sea4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#5E9FBB"/>
+      <stop offset="1" stop-color="#2F6D8C"/>
+    </linearGradient>
+    <linearGradient id="sand4" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F8E7CB"/>
+      <stop offset="1" stop-color="#E7C99E"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="500" fill="url(#sky4)"/>
+  <circle cx="640" cy="98" r="50" fill="#E9A75B" opacity=".9"/>
+  <path d="M0 278h800v132H0Z" fill="url(#sea4)"/>
+  <path d="M0 312c60-14 120-14 180 0s120 14 180 0 120-14 180 0 120 14 180 0 80-10 80-10v28c-60 12-120 12-180 0s-120-12-180 0-120 12-180 0-120-12-180 0S0 342 0 342Z" fill="#7FB6CF" opacity=".7"/>
+  <path d="M0 398c70-18 140-18 210 0s140 18 210 0 140-18 210 0 122 16 170 12v90H0Z" fill="url(#sand4)"/>
+  <path d="M182 390v-108h336v108" fill="#FAF2E4"/>
+  <path d="M160 282h380l-48-82H208Z" fill="#3E7C93"/>
+  <path d="M160 282h380v16H160Z" fill="#2F6176"/>
+  <rect x="214" y="308" width="64" height="82" rx="4" fill="#7FA9B8"/>
+  <rect x="316" y="308" width="64" height="82" rx="4" fill="#7FA9B8"/>
+  <rect x="418" y="308" width="64" height="82" rx="4" fill="#7FA9B8"/>
+  <path d="M256 308h-42v82h42Zm102 0h-42v82h42Zm102 0h-42v82h42Z" fill="#E7F1F4" opacity=".55"/>
+  <path d="M176 296h348" stroke="#E4D3B6" stroke-width="6" stroke-linecap="round"/>
+  <path d="M580 392V246" stroke="#7A5A38" stroke-width="14" stroke-linecap="round"/>
+  <path d="M580 250c-46-30-96-26-128 6 42-14 88-6 128 20Z" fill="#3F7D58"/>
+  <path d="M580 250c36-38 88-44 128-20-44-4-90 10-128 44Z" fill="#4C9565"/>
+  <path d="M580 250c-20-48-4-98 32-124-18 44-18 86-8 124Z" fill="#3F7D58"/>
+  <path d="M580 250c28-22 70-16 92 12-32-12-62-8-92 14Z" fill="#4C9565"/>
+  <circle cx="600" cy="204" r="9" fill="#8A5A2F"/>
+  <circle cx="626" cy="228" r="9" fill="#8A5A2F"/>
+  <rect x="72" y="428" width="126" height="10" rx="5" fill="#D9B88C" opacity=".8"/>
+  <rect x="612" y="444" width="140" height="10" rx="5" fill="#D9B88C" opacity=".8"/>
+</svg>
