@@ -3,6 +3,7 @@ services:
     name: oliyettebook
     runtime: docker
     plan: free
+    region: singapore
     autoDeploy: true
     healthCheckPath: /up
     envVars:
@@ -18,8 +19,10 @@ services:
         value: pgsql
       - key: DB_URL
         fromDatabase:
-          name: oliyettebook-db
+          name: palaycheck-db
           property: connectionString
+      - key: DB_SCHEMA
+        value: oliyettebook
       - key: SESSION_DRIVER
         value: database
       - key: CACHE_STORE
@@ -32,9 +35,3 @@ services:
         value: stderr
       - key: LOG_LEVEL
         value: info
-
-databases:
-  - name: oliyettebook-db
-    plan: free
-    databaseName: oliyettebook
-    user: oliyettebook
