@@ -26,7 +26,7 @@ class DatabaseSeeder extends Seeder
         }
 
         DB::table('users')->insert([
-            ['id' => 1, 'first_name' => 'Site', 'last_name' => 'Administrator', 'email' => 'admin@oliyettebook.test', 'phone' => '09170000001', 'password_hash' => '$2y$10$jTyaP/1/ach3qTVj33BmNO93Ipbq22JrzRg2npZ1dr5zoT7QyU9Bu', 'role' => 'admin', 'status' => 'active'],
+            ['id' => 1, 'first_name' => 'Site', 'last_name' => 'Administrator', 'email' => 'admin@oliyettebook.test', 'phone' => '09170000001', 'password_hash' => password_hash('Admin@123', PASSWORD_DEFAULT), 'role' => 'admin', 'status' => 'active'],
             ['id' => 2, 'first_name' => 'Maria', 'last_name' => 'Santos', 'email' => 'maria@example.com', 'phone' => '09171234567', 'password_hash' => '$2y$10$A.NzNjCh2csiS1zp8JQRgevN6g5TcfVnY/SOjz.p2QnRuFwBV7ija', 'role' => 'guest', 'status' => 'active'],
             ['id' => 3, 'first_name' => 'Juan', 'last_name' => 'Dela Cruz', 'email' => 'juan@example.com', 'phone' => '09182345678', 'password_hash' => '$2y$10$SGlrHM91R.zOC.2u2EQwWe.rMW1sPgomAOplQ339J743MQ4.XQCRK', 'role' => 'owner', 'status' => 'active'],
             ['id' => 4, 'first_name' => 'Ana', 'last_name' => 'Reyes', 'email' => 'ana@example.com', 'phone' => '09193456789', 'password_hash' => '$2y$10$SGlrHM91R.zOC.2u2EQwWe.rMW1sPgomAOplQ339J743MQ4.XQCRK', 'role' => 'owner', 'status' => 'pending'],

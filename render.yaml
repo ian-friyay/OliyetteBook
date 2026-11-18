@@ -29,6 +29,10 @@ services:
         value: database
       - key: QUEUE_CONNECTION
         value: database
+      - key: DEMO_ADMIN_EMAIL
+        value: admin@oliyettebook.test
+      - key: DEMO_ADMIN_PASSWORD
+        value: Admin@123
       - key: MAIL_MAILER
         value: log
       - key: LOG_CHANNEL
