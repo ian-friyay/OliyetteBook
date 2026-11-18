@@ -34,7 +34,23 @@ services:
       - key: DEMO_ADMIN_PASSWORD
         value: Admin@123
       - key: MAIL_MAILER
-        value: log
+        value: smtp
+      - key: MAIL_DRIVER
+        value: smtp
+      - key: MAIL_SCHEME
+        value: smtp
+      - key: MAIL_HOST
+        value: smtp.sendgrid.net
+      - key: MAIL_PORT
+        value: "2525"
+      - key: MAIL_USERNAME
+        value: apikey
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM_ADDRESS
+        sync: false
+      - key: MAIL_FROM_NAME
+        value: OliyetteBook
       - key: LOG_CHANNEL
         value: stderr
       - key: LOG_LEVEL

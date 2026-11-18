@@ -40,6 +40,12 @@ For Laravel security vulnerabilities, contact Taylor Otwell at [taylor@laravel.c
 
 ## Deploying to Render
 
+### SMTP for password resets
+
+The Render Blueprint configures SendGrid SMTP over STARTTLS on port 2525. Render's [Free web services block outbound ports 25, 465, and 587](https://render.com/docs/free#other-limitations), so port 2525 allows SMTP without changing the service to a paid plan. After syncing the Blueprint, set `MAIL_PASSWORD` to a SendGrid API key with Mail Send permission and `MAIL_FROM_ADDRESS` to a sender verified with SendGrid in the Render service's Environment settings. The username is `apikey`. Do not put a Gmail password or Google App Password in Render's `MAIL_PASSWORD`; Render is configured for SendGrid. The Blueprint keeps the key and sender address out of source control. For another SMTP provider, update `MAIL_HOST`, `MAIL_PORT`, `MAIL_SCHEME`, and credentials to match its settings and ensure its port is allowed by your Render plan. For local testing, use the Laravel mail log instead.
+
+For local Gmail SMTP, set `MAIL_HOST=smtp.gmail.com`, `MAIL_PORT=587`, `MAIL_USERNAME` to the full Gmail address, and `MAIL_FROM_ADDRESS` to that same address (or a verified Gmail alias). Enable 2-Step Verification and generate an App Password in your Google Account; use that 16-character App Password as `MAIL_PASSWORD`, not your normal Google password. If Laravel logs `535 5.7.8 Username and Password not accepted`, Google rejected the credentials. Replace the App Password, then restart the app or clear/rebuild Laravel's config cache so it reads the updated environment.
+
 The Render entrypoint creates or updates the demo administrator after every migration:
 
 | Role | Email | Password |
