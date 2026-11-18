@@ -190,20 +190,17 @@ class CottageController extends Controller
 
         $query = DB::table('cottages as c')
             ->leftJoin('users as u', 'u.id', '=', 'c.owner_id')
-            ->leftJoin('reviews as r', function ($join) {
-                $join->on('r.cottage_id', '=', 'c.id')->where('r.status', '=', 'approved');
-            })
             ->select('c.*', 'u.first_name', 'u.last_name')
             ->selectRaw('(SELECT path FROM cottage_photos p WHERE p.cottage_id = c.id ORDER BY sort_order, id LIMIT 1) AS photo')
-            ->selectRaw('COALESCE(AVG(r.rating), 0) AS avg_rating')
-            ->selectRaw('COUNT(r.id) AS review_count')
+            ->selectRaw('(SELECT COALESCE(AVG(r.rating), 0) FROM reviews r WHERE r.cottage_id = c.id AND r.status = ?) AS avg_rating', ['approved'])
+            ->selectRaw('(SELECT COUNT(*) FROM reviews r WHERE r.cottage_id = c.id AND r.status = ?) AS review_count', ['approved'])
             ->selectRaw('(SELECT COUNT(*) FROM bookings b WHERE b.cottage_id = c.id) AS booking_count');
 
         if ($filter !== 'all') {
             $query->where('c.status', $filter);
         }
 
-        $cottages = $query->groupBy('c.id')->orderByDesc('c.id')->get();
+        $cottages = $query->orderByDesc('c.id')->get();
 
         return view('admin.cottages', [
             'errors' => $errors,
