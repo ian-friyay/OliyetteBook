@@ -272,7 +272,7 @@ textarea {
   width: min(86vw, 340px);
   background: var(--color-primary);
   color: #fff;
-  z-index: 90;
+  z-index: 130;
   padding: 20px;
   display: flex;
   flex-direction: column;
