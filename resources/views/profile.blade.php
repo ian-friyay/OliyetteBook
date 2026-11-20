@@ -4,8 +4,11 @@
     ];
     if ($role === 'owner') {
         $navItems[] = ['tab' => 'cottages', 'label' => 'My Cottages', 'icon' => 'home'];
+        $navItems[] = ['tab' => 'rooms', 'label' => 'My Rooms', 'icon' => 'bed'];
     }
-    $navItems[] = ['tab' => 'bookings', 'label' => 'Bookings', 'icon' => 'calendar'];
+    if ($role === 'guest') {
+        $navItems[] = ['tab' => 'bookings', 'label' => 'Bookings', 'icon' => 'calendar'];
+    }
     if ($role === 'owner') {
         $navItems[] = ['tab' => 'efficiency', 'label' => 'Efficiency', 'icon' => 'chart'];
     }
@@ -46,93 +49,236 @@
 
     <section class="content">
         @if ($tab === 'dashboard')
-            <div class="page-head">
-                <div>
-                    <p class="eyebrow">Member area</p>
-                    <h1 class="page-title">Hello, {{ $profile->first_name }}</h1>
-                    <p class="page-sub">Here is a quick look at your reservations and account.</p>
-                </div>
-                <a class="btn btn-primary" href="/booking">Book a cottage</a>
-            </div>
-
-            <div class="stat-grid">
-                <div class="stat-card reveal">
-                    <span class="stat-card__value">{{ (int) $stats['total'] }}</span>
-                    <span class="stat-card__label">Total bookings</span>
-                </div>
-                <div class="stat-card reveal stagger-1">
-                    <span class="stat-card__value">{{ (int) $stats['pending'] }}</span>
-                    <span class="stat-card__label">Pending approval</span>
-                </div>
-                <div class="stat-card reveal stagger-2">
-                    <span class="stat-card__value">{{ (int) $stats['completed'] }}</span>
-                    <span class="stat-card__label">Completed stays</span>
-                </div>
-                <div class="stat-card reveal stagger-3">
-                    <span class="stat-card__value">{{ peso($stats['spent']) }}</span>
-                    <span class="stat-card__label">Approved value</span>
-                </div>
-            </div>
-
-            <div class="panel reveal">
-                <div class="section-heading">
+            @if ($role === 'owner')
+                <div class="page-head">
                     <div>
-                        <p class="eyebrow">Up next</p>
-                        <h2>Your next stay</h2>
+                        <p class="eyebrow">Owner area</p>
+                        <h1 class="page-title">Hello, {{ $profile->first_name }}</h1>
+                        <p class="page-sub">Manage your listings and keep up with guest feedback.</p>
+                    </div>
+                    <div class="hero-actions">
+                        <a class="btn btn-primary" href="/profile?tab=cottages">My cottages</a>
+                        <a class="btn btn-ghost" href="/profile?tab=rooms">My rooms</a>
+                        <a class="btn btn-ghost" href="/reviews">User reviews</a>
                     </div>
                 </div>
 
-                @if ($nextStay)
-                    <div class="summary-list">
-                        <div class="summary-list__row"><span>Cottage</span><span>{{ $nextStay->cottage_name }}</span></div>
-                        <div class="summary-list__row"><span>Receipt</span><span>{{ $nextStay->receipt_no }}</span></div>
-                        <div class="summary-list__row"><span>Dates</span><span>{{ format_booking_range($nextStay->check_in, $nextStay->check_out, $nextStay->check_in_time, $nextStay->check_out_time) }}</span></div>
-                        <div class="summary-list__row"><span>Total</span><span class="text-accent">{{ peso($nextStay->total_amount) }}</span></div>
-                        <div class="summary-list__row"><span>Status</span><span>{!! status_badge($nextStay->status) !!}</span></div>
+                <div class="stat-grid">
+                    <div class="stat-card reveal">
+                        <span class="stat-card__value">{{ (int) $ownerStats['total'] }}</span>
+                        <span class="stat-card__label">My cottages</span>
+                        <span class="stat-card__note">{{ (int) $ownerStats['active'] }} active</span>
                     </div>
-                    <div class="mt-2">
-                        <a class="btn btn-ghost btn-sm" href="/profile?tab=bookings">View all bookings</a>
+                    <div class="stat-card reveal stagger-1">
+                        <span class="stat-card__value">{{ $ownerRooms->count() }}</span>
+                        <span class="stat-card__label">My rooms</span>
+                        <span class="stat-card__note">{{ $ownerRooms->where('status', 'active')->count() }} active</span>
                     </div>
-                @else
-                    <div class="empty-state">
-                        <h3>No upcoming stay yet</h3>
-                        <p>Pick a cottage and reserve your dates whenever you are ready.</p>
-                        <a class="btn btn-primary" href="/booking">Book a cottage</a>
+                    <div class="stat-card reveal stagger-2">
+                        <span class="stat-card__value">{{ (int) $ownerStats['bookings'] }}</span>
+                        <span class="stat-card__label">Cottage bookings</span>
                     </div>
-                @endif
-            </div>
+                    <div class="stat-card reveal stagger-3">
+                        <span class="stat-card__value">{{ $ownerStats['rating'] > 0 ? number_format((float) $ownerStats['rating'], 1) . ' / 5' : '—' }}</span>
+                        <span class="stat-card__label">Average rating</span>
+                    </div>
+                </div>
 
-            @if (count($bookings))
                 <div class="panel reveal">
                     <div class="section-heading">
-                        <h2>Recent bookings</h2>
-                        <a class="btn btn-ghost btn-sm" href="/profile?tab=bookings">See all</a>
+                        <div>
+                            <p class="eyebrow">Listings</p>
+                            <h2>Your cottages</h2>
+                        </div>
+                        <a class="btn btn-ghost btn-sm" href="/profile?tab=cottages">Manage all</a>
                     </div>
-                    <div class="table-wrap">
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <th>Receipt</th>
-                                    <th>Cottage</th>
-                                    <th>Dates</th>
-                                    <th>Total</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach (array_slice($bookings->all(), 0, 5) as $booking)
+
+                    @if ($ownerCottages->isEmpty())
+                        <div class="empty-state">
+                            <h3>No cottages yet</h3>
+                            <p>Add your first listing so guests can start booking.</p>
+                            <a class="btn btn-primary btn-sm" href="/profile?tab=cottages">Add a cottage</a>
+                        </div>
+                    @else
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
                                     <tr>
-                                        <td>{{ $booking->receipt_no }}</td>
-                                        <td>{{ $booking->cottage_name }}</td>
-                                        <td>{{ format_booking_range($booking->check_in, $booking->check_out, $booking->check_in_time, $booking->check_out_time) }}</td>
-                                        <td>{{ peso($booking->total_amount) }}</td>
-                                        <td>{!! status_badge($booking->status) !!}</td>
+                                        <th>Cottage</th>
+                                        <th>Status</th>
+                                        <th>Rating</th>
+                                        <th></th>
                                     </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach ($ownerCottages->take(5) as $cottage)
+                                        <tr>
+                                            <td>{{ $cottage->name }}</td>
+                                            <td>{!! status_badge($cottage->status) !!}</td>
+                                            <td>
+                                                @if ((int) $cottage->review_count > 0)
+                                                    {{ number_format((float) $cottage->avg_rating, 1) }} ({{ (int) $cottage->review_count }})
+                                                @else
+                                                    <span class="text-muted">No reviews</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <a class="btn btn-ghost btn-sm" href="/profile?tab=cottages&edit={{ (int) $cottage->id }}">Edit</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="panel reveal">
+                    <div class="section-heading">
+                        <div>
+                            <p class="eyebrow">Listings</p>
+                            <h2>Your rooms</h2>
+                        </div>
+                        <a class="btn btn-ghost btn-sm" href="/profile?tab=rooms">Manage all</a>
+                    </div>
+
+                    @if ($ownerRooms->isEmpty())
+                        <div class="empty-state">
+                            <h3>No rooms yet</h3>
+                            <p>Add your first room so guests can start booking.</p>
+                            <a class="btn btn-primary btn-sm" href="/profile?tab=rooms">Add a room</a>
+                        </div>
+                    @else
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Room</th>
+                                        <th>Location</th>
+                                        <th>Rate</th>
+                                        <th>Bookings</th>
+                                        <th>Status</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($ownerRooms->take(5) as $room)
+                                        <tr>
+                                            <td>{{ $room->name }}</td>
+                                            <td>{{ $room->location ?: '—' }}</td>
+                                            <td>{{ peso($room->rate_per_day) }}</td>
+                                            <td>{{ (int) $room->booking_count }}</td>
+                                            <td>{!! status_badge($room->status) !!}</td>
+                                            <td>
+                                                <a class="btn btn-ghost btn-sm" href="/profile?tab=rooms&edit_room={{ (int) $room->id }}">Edit</a>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    @endif
+                </div>
+
+                <div class="panel reveal">
+                    <div class="section-heading">
+                        <div>
+                            <p class="eyebrow">Guest feedback</p>
+                            <h2>User reviews</h2>
+                        </div>
+                        <a class="btn btn-ghost btn-sm" href="/reviews">View user reviews</a>
+                    </div>
+                    <p class="text-muted">Read approved guest reviews and comments about the resort.</p>
+                </div>
+            @else
+                <div class="page-head">
+                    <div>
+                        <p class="eyebrow">Member area</p>
+                        <h1 class="page-title">Hello, {{ $profile->first_name }}</h1>
+                        <p class="page-sub">Here is a quick look at your reservations and account.</p>
+                    </div>
+                    <a class="btn btn-primary" href="/booking">Book a cottage</a>
+                </div>
+
+                <div class="stat-grid">
+                    <div class="stat-card reveal">
+                        <span class="stat-card__value">{{ (int) $stats['total'] }}</span>
+                        <span class="stat-card__label">Total bookings</span>
+                    </div>
+                    <div class="stat-card reveal stagger-1">
+                        <span class="stat-card__value">{{ (int) $stats['pending'] }}</span>
+                        <span class="stat-card__label">Pending approval</span>
+                    </div>
+                    <div class="stat-card reveal stagger-2">
+                        <span class="stat-card__value">{{ (int) $stats['completed'] }}</span>
+                        <span class="stat-card__label">Completed stays</span>
+                    </div>
+                    <div class="stat-card reveal stagger-3">
+                        <span class="stat-card__value">{{ peso($stats['spent']) }}</span>
+                        <span class="stat-card__label">Approved value</span>
                     </div>
                 </div>
+
+                <div class="panel reveal">
+                    <div class="section-heading">
+                        <div>
+                            <p class="eyebrow">Up next</p>
+                            <h2>Your next stay</h2>
+                        </div>
+                    </div>
+
+                    @if ($nextStay)
+                        <div class="summary-list">
+                            <div class="summary-list__row"><span>Cottage</span><span>{{ $nextStay->cottage_name }}</span></div>
+                            <div class="summary-list__row"><span>Receipt</span><span>{{ $nextStay->receipt_no }}</span></div>
+                            <div class="summary-list__row"><span>Dates</span><span>{{ format_booking_range($nextStay->check_in, $nextStay->check_out, $nextStay->check_in_time, $nextStay->check_out_time) }}</span></div>
+                            <div class="summary-list__row"><span>Total</span><span class="text-accent">{{ peso($nextStay->total_amount) }}</span></div>
+                            <div class="summary-list__row"><span>Status</span><span>{!! status_badge($nextStay->status) !!}</span></div>
+                        </div>
+                        <div class="mt-2">
+                            <a class="btn btn-ghost btn-sm" href="/profile?tab=bookings">View all bookings</a>
+                        </div>
+                    @else
+                        <div class="empty-state">
+                            <h3>No upcoming stay yet</h3>
+                            <p>Pick a cottage and reserve your dates whenever you are ready.</p>
+                            <a class="btn btn-primary" href="/booking">Book a cottage</a>
+                        </div>
+                    @endif
+                </div>
+
+                @if (count($bookings))
+                    <div class="panel reveal">
+                        <div class="section-heading">
+                            <h2>Recent bookings</h2>
+                            <a class="btn btn-ghost btn-sm" href="/profile?tab=bookings">See all</a>
+                        </div>
+                        <div class="table-wrap">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Receipt</th>
+                                        <th>Cottage</th>
+                                        <th>Dates</th>
+                                        <th>Total</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (array_slice($bookings->all(), 0, 5) as $booking)
+                                        <tr>
+                                            <td>{{ $booking->receipt_no }}</td>
+                                            <td>{{ $booking->cottage_name }}</td>
+                                            <td>{{ format_booking_range($booking->check_in, $booking->check_out, $booking->check_in_time, $booking->check_out_time) }}</td>
+                                            <td>{{ peso($booking->total_amount) }}</td>
+                                            <td>{!! status_badge($booking->status) !!}</td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                @endif
             @endif
 
         @elseif ($tab === 'bookings')
@@ -373,6 +519,155 @@
                                         <td>
                                             <div class="table-actions">
                                                 <a class="btn btn-ghost btn-sm" href="/profile?tab=cottages&edit={{ (int) $cottage->id }}">Edit</a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
+            </div>
+
+        @elseif ($tab === 'rooms' && $role === 'owner')
+            <div class="page-head">
+                <div>
+                    <p class="eyebrow">Resort owner</p>
+                    <h1 class="page-title">My Rooms</h1>
+                    <p class="page-sub">Add or edit rooms. Active rooms appear on the booking page immediately.</p>
+                </div>
+            </div>
+
+            @if (! empty($roomErrors['form']))
+                <p class="form-error" role="alert">{{ $roomErrors['form'] }}</p>
+            @endif
+
+            <div class="panel reveal">
+                <div class="section-heading">
+                    <h2>{{ $roomForm['id'] > 0 ? 'Edit room' : 'List a new room' }}</h2>
+                    @if ($roomForm['id'] > 0)
+                        <a class="btn btn-ghost btn-sm" href="/profile?tab=rooms">Cancel edit</a>
+                    @endif
+                </div>
+
+                <form class="form" method="post" action="/profile?tab=rooms" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="form" value="room">
+                    <input type="hidden" name="room_id" value="{{ (int) $roomForm['id'] }}">
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="room_name">Room Name</label>
+                            <input type="text" id="room_name" name="name" value="{{ $roomForm['name'] }}"
+                                   maxlength="100" required @if (isset($roomErrors['name'])) aria-invalid="true" @endif>
+                            @if (isset($roomErrors['name']))
+                                <p class="field-error">{{ $roomErrors['name'] }}</p>
+                            @endif
+                        </div>
+                        <div class="field">
+                            <label for="room_location">Location</label>
+                            <input type="text" id="room_location" name="location" value="{{ $roomForm['location'] }}"
+                                   maxlength="100" @if (isset($roomErrors['location'])) aria-invalid="true" @endif>
+                            @if (isset($roomErrors['location']))
+                                <p class="field-error">{{ $roomErrors['location'] }}</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="room_description">Description</label>
+                        <textarea id="room_description" name="description">{{ $roomForm['description'] }}</textarea>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="room_capacity">Capacity</label>
+                            <input type="number" id="room_capacity" name="capacity" min="1" max="50"
+                                   value="{{ (int) $roomForm['capacity'] }}" required @if (isset($roomErrors['capacity'])) aria-invalid="true" @endif>
+                            @if (isset($roomErrors['capacity']))
+                                <p class="field-error">{{ $roomErrors['capacity'] }}</p>
+                            @endif
+                        </div>
+                        <div class="field">
+                            <label for="room_rate">Rate per Day (₱)</label>
+                            <input type="number" id="room_rate" name="rate_per_day" min="1" step="0.01"
+                                   value="{{ (string) $roomForm['rate_per_day'] }}" required @if (isset($roomErrors['rate_per_day'])) aria-invalid="true" @endif>
+                            @if (isset($roomErrors['rate_per_day']))
+                                <p class="field-error">{{ $roomErrors['rate_per_day'] }}</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="room_amenities">Amenities</label>
+                            <input type="text" id="room_amenities" name="amenities" value="{{ $roomForm['amenities'] }}"
+                                   placeholder="Air conditioning, Wi-Fi, Hot shower">
+                        </div>
+                        <div class="field">
+                            <label for="room_status">Status</label>
+                            <select id="room_status" name="status">
+                                <option value="active" @selected($roomForm['status'] === 'active')>Active</option>
+                                <option value="hidden" @selected($roomForm['status'] === 'hidden')>Hidden</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="room_photo">Room Photo</label>
+                        <input type="file" id="room_photo" name="photo" accept="image/jpeg,image/png,image/webp,image/gif">
+                        <p class="helper">JPG, PNG, WEBP, or GIF. Maximum 3 MB.{{ $roomForm['photo'] ? ' A photo is already on file.' : '' }}</p>
+                        @if (isset($roomErrors['photo']))
+                            <p class="field-error">{{ $roomErrors['photo'] }}</p>
+                        @endif
+                        @if ($roomForm['photo'])
+                            <img class="mt-1" src="{{ $roomForm['photo'] }}" alt="Current room photo"
+                                 style="max-width:220px;border-radius:12px;">
+                        @endif
+                    </div>
+
+                    <button class="btn btn-primary" type="submit">
+                        {{ $roomForm['id'] > 0 ? 'Save Changes' : 'Submit Room' }}
+                    </button>
+                </form>
+            </div>
+
+            <div class="panel reveal">
+                <div class="section-heading">
+                    <h2>Your rooms</h2>
+                </div>
+
+                @if ($ownerRooms->isEmpty())
+                    <div class="empty-state">
+                        <h3>No rooms listed yet</h3>
+                        <p>Use the form above to add your first room.</p>
+                    </div>
+                @else
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Room</th>
+                                    <th>Location</th>
+                                    <th>Rate</th>
+                                    <th>Bookings</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($ownerRooms as $room)
+                                    <tr>
+                                        <td>{{ $room->code }}</td>
+                                        <td>{{ $room->name }}</td>
+                                        <td>{{ $room->location ?: '—' }}</td>
+                                        <td>{{ peso($room->rate_per_day) }}</td>
+                                        <td>{{ (int) $room->booking_count }}</td>
+                                        <td>{!! status_badge($room->status) !!}</td>
+                                        <td>
+                                            <div class="table-actions">
+                                                <a class="btn btn-ghost btn-sm" href="/profile?tab=rooms&edit_room={{ (int) $room->id }}">Edit</a>
                                             </div>
                                         </td>
                                     </tr>

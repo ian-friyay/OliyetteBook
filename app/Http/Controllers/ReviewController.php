@@ -16,6 +16,36 @@ class ReviewController extends Controller
         $userId = (int) $user->id;
         $role = $user->role;
 
+        if ($role === 'owner') {
+            $ownerReviews = DB::table('reviews as r')
+                ->join('users as u', 'u.id', '=', 'r.user_id')
+                ->join('cottages as c', 'c.id', '=', 'r.cottage_id')
+                ->where('c.owner_id', $userId)
+                ->where('r.status', 'approved')
+                ->select('r.rating', 'r.comment', 'r.created_at', 'u.first_name', 'u.last_name', 'c.name as cottage_name')
+                ->orderByDesc('r.created_at')
+                ->orderByDesc('r.id')
+                ->limit(100)
+                ->get();
+
+            $feedback = DB::table('feedback as f')
+                ->join('users as u', 'u.id', '=', 'f.user_id')
+                ->select('f.comment', 'f.created_at', 'u.first_name', 'u.last_name')
+                ->orderByDesc('f.created_at')
+                ->orderByDesc('f.id')
+                ->limit(100)
+                ->get();
+
+            return view('reviews', [
+                'eligible' => collect(),
+                'selectedBooking' => null,
+                'ownerReviews' => $ownerReviews,
+                'feedback' => $feedback,
+                'role' => $role,
+                'pageTitle' => 'User Reviews',
+            ]);
+        }
+
         $eligible = DB::table('bookings as b')
             ->join('cottages as c', 'c.id', '=', 'b.cottage_id')
             ->leftJoin('reviews as r', 'r.booking_id', '=', 'b.id')
@@ -39,8 +69,10 @@ class ReviewController extends Controller
         return view('reviews', [
             'eligible' => $eligible,
             'selectedBooking' => $selectedBooking,
+            'ownerReviews' => collect(),
+            'feedback' => collect(),
             'role' => $role,
-            'pageTitle' => 'Reviews',
+            'pageTitle' => 'User Reviews',
         ]);
     }
 
@@ -49,12 +81,12 @@ class ReviewController extends Controller
         $comment = trim((string) $request->input('comment', ''));
 
         if ($comment === '') {
-            flash('error', 'Please write your feedback before submitting.');
+            flash('error', 'Please write your comment before submitting.');
 
             return redirect()->route('reviews');
         }
         if (mb_strlen($comment) > 2000) {
-            flash('error', 'Feedback must be 2,000 characters or fewer.');
+            flash('error', 'Comments must be 2,000 characters or fewer.');
 
             return redirect()->route('reviews');
         }
@@ -64,7 +96,7 @@ class ReviewController extends Controller
             'comment' => $comment,
         ]);
 
-        flash('success', 'Thank you! Your feedback about the resort was submitted.');
+        flash('success', 'Thank you! Your comment about the resort was submitted.');
 
         return redirect()->route('reviews');
     }

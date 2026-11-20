@@ -5,6 +5,7 @@ declare(strict_types=1);
 use App\Models\Booking;
 use App\Models\Cottage;
 use App\Models\LoginAttempt;
+use App\Models\Room;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 
@@ -198,6 +199,7 @@ function icon(string $name, string $class = 'icon'): string
         'users' => '<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17.5" cy="9" r="2.2"/><path d="M15.5 20a4.8 4.8 0 0 1 6.5-4.5"/>',
         'user' => '<circle cx="12" cy="8" r="3.2"/><path d="M5 20a7 7 0 0 1 14 0"/>',
         'home' => '<path d="M4 11.5 12 4l8 7.5"/><path d="M6.5 10.5V20h11v-9.5"/><path d="M10 20v-5h4v5"/>',
+        'bed' => '<path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18h18M6 10V7a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v3"/><path d="M8 10V8h8v2"/>',
         'calendar' => '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/><path d="M8 14h3M13 14h3M8 17h3"/>',
         'star' => '<path d="m12 3.6 2.5 5.1 5.6.8-4 4 .9 5.6-5-2.7-5 2.7.9-5.6-4-4 5.6-.8Z"/>',
         'list' => '<path d="M8 6h13M8 12h13M8 18h13"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/>',
@@ -313,6 +315,17 @@ function generate_cottage_code(): string
         }
     }
     throw new RuntimeException('Could not generate a unique cottage code.');
+}
+
+function generate_room_code(): string
+{
+    for ($i = 0; $i < 25; $i++) {
+        $code = 'RM-' . str_pad((string) random_int(1000, 9999), 4, '0', STR_PAD_LEFT);
+        if (! Room::where('code', $code)->exists()) {
+            return $code;
+        }
+    }
+    throw new RuntimeException('Could not generate a unique room code.');
 }
 
 function generate_receipt_no(): string

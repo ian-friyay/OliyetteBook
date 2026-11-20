@@ -32,7 +32,7 @@ services:
       - key: DEMO_ADMIN_EMAIL
         value: admin@oliyettebook.test
       - key: DEMO_ADMIN_PASSWORD
-        value: Admin@123
+        value: Admin@2026
       - key: MAIL_MAILER
         value: smtp
       - key: MAIL_DRIVER
@@ -40,15 +40,15 @@ services:
       - key: MAIL_SCHEME
         value: smtp
       - key: MAIL_HOST
-        value: smtp.sendgrid.net
+        value: smtp-relay.brevo.com
       - key: MAIL_PORT
         value: "2525"
       - key: MAIL_USERNAME
-        value: apikey
+        value: c3fbde001@smtp-brevo.com
       - key: MAIL_PASSWORD
         sync: false
       - key: MAIL_FROM_ADDRESS
-        sync: false
+        value: hello@oliyettebook.test
       - key: MAIL_FROM_NAME
         value: OliyetteBook
       - key: LOG_CHANNEL

@@ -5,9 +5,12 @@
     <div class="reveal">
         <p class="eyebrow">Oliyette Resort · Victoria, Oriental Mindoro</p>
         <h1>A quieter kind of getaway by the sea.</h1>
-        <p>Choose a cottage, pick your dates, and let the resort team confirm your stay. Clear prices, real availability, and a simple booking flow from start to finish.</p>
+        <p>{{ $user && $user->role === 'owner' ? 'Manage your cottages, keep track of reservations, and read what guests are saying about the resort.' : 'Choose a cottage, pick your dates, and let the resort team confirm your stay. Clear prices, real availability, and a simple booking flow from start to finish.' }}</p>
         <div class="hero-actions">
-            @if ($user)
+            @if ($user && $user->role === 'owner')
+                <a class="btn btn-primary btn-lg" href="/profile?tab=cottages">Manage my cottages</a>
+                <a class="btn btn-ghost btn-lg" href="/reviews">User reviews</a>
+            @elseif ($user)
                 <a class="btn btn-primary btn-lg" href="/booking">Book a cottage</a>
                 <a class="btn btn-ghost btn-lg" href="/profile">My bookings</a>
             @else
@@ -63,8 +66,10 @@
                         <p class="price">{{ peso($cottage->rate_per_day) }}<small> / day</small></p>
                     </div>
                     <div class="cottage-card__foot">
-                        @if ($user && $user->role === 'admin')
-                            <a class="btn btn-ghost" href="/admin/cottages?edit={{ (int) $cottage->id }}">Manage cottage</a>
+                        @if ($user && $user->role === 'owner')
+                            @if ((int) ($cottage->owner_id ?? 0) === (int) $user->id)
+                                <a class="btn btn-ghost" href="/profile?tab=cottages&edit={{ (int) $cottage->id }}">Manage cottage</a>
+                            @endif
                         @else
                             <a class="btn btn-primary" href="/booking?cottage={{ (int) $cottage->id }}">Select Cottage</a>
                         @endif

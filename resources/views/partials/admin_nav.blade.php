@@ -18,7 +18,7 @@
         ['key' => 'cottages', 'label' => 'Cottages', 'href' => '/admin/cottages', 'icon' => 'home', 'count' => $adminCounts['cottages']],
         ['key' => 'bookings', 'label' => 'Bookings', 'href' => '/admin/bookings', 'icon' => 'calendar', 'count' => $adminCounts['bookings']],
         ['key' => 'users', 'label' => 'Users', 'href' => '/admin/users', 'icon' => 'user', 'count' => null],
-        ['key' => 'reviews', 'label' => 'Reviews', 'href' => '/admin/reviews', 'icon' => 'star', 'count' => $adminCounts['reviews']],
+        ['key' => 'reviews', 'label' => 'User Reviews', 'href' => '/admin/reviews', 'icon' => 'star', 'count' => $adminCounts['reviews']],
         ['key' => 'records', 'label' => 'Records', 'href' => '/admin/records', 'icon' => 'list', 'count' => null],
     ];
 @endphp

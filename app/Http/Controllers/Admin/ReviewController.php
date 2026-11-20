@@ -67,7 +67,7 @@ class ReviewController extends Controller
             'filter' => $filter,
             'returnUrl' => $returnUrl,
             'adminPage' => 'reviews',
-            'pageTitle' => 'Review Moderation',
+            'pageTitle' => 'User Review Moderation',
         ]);
     }
 }

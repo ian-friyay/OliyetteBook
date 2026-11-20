@@ -6,8 +6,8 @@
         <div class="page-head">
             <div>
                 <p class="eyebrow">Moderation</p>
-                <h1 class="page-title">Guest Reviews</h1>
-                <p class="page-sub">Approve genuine reviews before they appear on the Home page, or remove inappropriate ones.</p>
+                <h1 class="page-title">User Reviews</h1>
+                <p class="page-sub">Approve genuine user reviews before they appear on the Home page, or remove inappropriate ones.</p>
             </div>
         </div>
 

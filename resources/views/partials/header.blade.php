@@ -9,11 +9,11 @@
     $role = $user->role ?? null;
 
     $fullNav = [
-        ['label' => 'Home', 'href' => '/', 'key' => 'home', 'roles' => ['guest', 'owner', 'admin']],
-        ['label' => 'Profiles', 'href' => '/profile', 'key' => 'profile', 'roles' => ['guest', 'owner', 'admin']],
-        ['label' => 'Booking', 'href' => '/booking', 'key' => 'booking', 'roles' => ['guest', 'owner']],
+        ['label' => 'Home', 'href' => '/', 'key' => 'home', 'roles' => ['guest', 'owner']],
+        ['label' => 'Profiles', 'href' => '/profile', 'key' => 'profile', 'roles' => ['guest', 'owner']],
+        ['label' => 'Booking', 'href' => '/booking', 'key' => 'booking', 'roles' => ['guest']],
         ['label' => 'Admin', 'href' => '/admin', 'key' => 'admin', 'roles' => ['admin']],
-        ['label' => 'Reviews', 'href' => '/reviews', 'key' => 'reviews', 'roles' => ['guest', 'owner', 'admin']],
+        ['label' => 'User Reviews', 'href' => '/reviews', 'key' => 'reviews', 'roles' => ['guest', 'owner']],
     ];
 
     $currentKey = $isAdminArea ? 'admin' : ($path === '' ? 'home' : $path);
@@ -39,7 +39,7 @@
 
 <header class="site-header">
     <div class="header-inner">
-        <a class="brand" href="/" aria-label="{{ config('app.name') }} home">
+        <a class="brand" href="{{ $role === 'admin' ? '/admin' : '/' }}" aria-label="{{ config('app.name') }} {{ $role === 'admin' ? 'admin' : 'home' }}">
             <img src="/assets/img/logo.svg" alt="" width="34" height="34">
             <span class="brand-text">{{ config('app.name') }}</span>
         </a>

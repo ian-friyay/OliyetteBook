@@ -32,14 +32,14 @@ Route::get('/gallery', [GalleryController::class, 'index'])->name('gallery');
 Route::match(['get', 'post'], '/contact', [ContactController::class, 'index'])->name('contact');
 
 Route::middleware('auth')->group(function () {
-    Route::match(['get', 'post'], '/profile', [ProfileController::class, 'index'])->name('profile');
-    Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews');
-    Route::post('/actions/submit-review', [ReviewController::class, 'store'])->name('reviews.store');
-    Route::post('/actions/submit-feedback', [ReviewController::class, 'storeFeedback'])->name('feedback.store');
+    Route::match(['get', 'post'], '/profile', [ProfileController::class, 'index'])->name('profile')->middleware('role:guest,owner');
+    Route::get('/reviews', [ReviewController::class, 'index'])->name('reviews')->middleware('role:guest,owner');
+    Route::post('/actions/submit-review', [ReviewController::class, 'store'])->name('reviews.store')->middleware('role:guest');
+    Route::post('/actions/submit-feedback', [ReviewController::class, 'storeFeedback'])->name('feedback.store')->middleware('role:guest');
     Route::post('/actions/cancel-booking', [BookingController::class, 'cancel'])->name('bookings.cancel');
 });
 
-Route::middleware('role:guest,owner')->group(function () {
+Route::middleware('role:guest')->group(function () {
     Route::get('/booking', [BookingController::class, 'index'])->name('booking');
     Route::post('/actions/book', [BookingController::class, 'store'])->name('booking.store');
     Route::get('/rooms', [RoomController::class, 'index'])->name('rooms');

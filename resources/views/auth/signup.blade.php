@@ -107,10 +107,6 @@
             <button class="btn btn-primary btn-block btn-lg" type="submit">Create Account</button>
         </form>
 
-        <div class="auth-footer">
-            <span>Already have an account?</span>
-            <a class="btn btn-outline-accent btn-sm" href="/login">Log In</a>
-        </div>
     </div>
 </div>
 @include('partials.footer')

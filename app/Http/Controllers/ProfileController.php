@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Cottage;
 use App\Models\CottagePhoto;
+use App\Models\Room;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -19,9 +20,13 @@ class ProfileController extends Controller
         $userId = (int) $user->id;
         $role = $user->role;
 
-        $allowedTabs = ['dashboard', 'bookings', 'settings'];
+        $allowedTabs = ['dashboard', 'settings'];
+        if ($role === 'guest') {
+            $allowedTabs[] = 'bookings';
+        }
         if ($role === 'owner') {
             $allowedTabs[] = 'cottages';
+            $allowedTabs[] = 'rooms';
             $allowedTabs[] = 'efficiency';
         }
 
@@ -33,6 +38,7 @@ class ProfileController extends Controller
         $settingsErrors = [];
         $passwordErrors = [];
         $cottageErrors = [];
+        $roomErrors = [];
 
         $editId = (int) ($request->input('cottage_id') ?? $request->query('edit', 0));
         $editCottage = null;
@@ -44,6 +50,19 @@ class ProfileController extends Controller
                 flash('error', 'That cottage could not be found.');
 
                 return redirect('/profile?tab=cottages');
+            }
+        }
+
+        $editRoomId = (int) ($request->input('room_id') ?? $request->query('edit_room', 0));
+        $editRoom = null;
+
+        if ($role === 'owner' && $editRoomId > 0) {
+            $editRoom = Room::where('id', $editRoomId)->first();
+
+            if (! $editRoom && ! $request->isMethod('post')) {
+                flash('error', 'That room could not be found.');
+
+                return redirect('/profile?tab=rooms');
             }
         }
 
@@ -64,6 +83,18 @@ class ProfileController extends Controller
                 ->orderBy('id')
                 ->value('path') ?: '');
         }
+
+        $roomForm = [
+            'id' => $editRoom ? (int) $editRoom->id : 0,
+            'name' => $editRoom->name ?? '',
+            'location' => $editRoom->location ?? '',
+            'description' => $editRoom->description ?? '',
+            'capacity' => $editRoom->capacity ?? 2,
+            'amenities' => $editRoom->amenities ?? '',
+            'rate_per_day' => $editRoom->rate_per_day ?? '',
+            'status' => $editRoom->status ?? 'active',
+            'photo' => (string) ($editRoom->photo ?? ''),
+        ];
 
         if ($request->isMethod('post')) {
             $form = (string) $request->input('form', '');
@@ -235,6 +266,110 @@ class ProfileController extends Controller
 
                 $tab = 'cottages';
             }
+
+            if ($form === 'room') {
+                if ($role !== 'owner') {
+                    abort(403, 'Access denied.');
+                }
+
+                $roomForm = [
+                    'id' => (int) $request->input('room_id', 0),
+                    'name' => trim((string) $request->input('name', '')),
+                    'location' => trim((string) $request->input('location', '')),
+                    'description' => trim((string) $request->input('description', '')),
+                    'capacity' => (int) $request->input('capacity', 0),
+                    'amenities' => trim((string) $request->input('amenities', '')),
+                    'rate_per_day' => trim((string) $request->input('rate_per_day', '')),
+                    'status' => (string) $request->input('status', 'active'),
+                    'photo' => $roomForm['photo'],
+                ];
+
+                if ($roomForm['id'] > 0 && ! $editRoom) {
+                    $roomErrors['form'] = 'That room could not be found.';
+                }
+                if ($roomForm['name'] === '' || mb_strlen($roomForm['name']) > 100) {
+                    $roomErrors['name'] = 'Enter a room name (100 characters or fewer).';
+                }
+                if (mb_strlen($roomForm['location']) > 100) {
+                    $roomErrors['location'] = 'Keep the location under 100 characters.';
+                }
+                if ($roomForm['capacity'] < 1 || $roomForm['capacity'] > 50) {
+                    $roomErrors['capacity'] = 'Capacity must be between 1 and 50 guests.';
+                }
+                $rate = (float) str_replace(',', '', $roomForm['rate_per_day']);
+                if ($rate <= 0) {
+                    $roomErrors['rate_per_day'] = 'Enter a daily rate greater than zero.';
+                }
+                if (! in_array($roomForm['status'], ['active', 'hidden'], true)) {
+                    $roomForm['status'] = 'active';
+                }
+
+                $newPhotoPath = null;
+                if (! $roomErrors) {
+                    try {
+                        $newPhotoPath = save_uploaded_photo($request->file('photo'), 'room');
+                    } catch (\RuntimeException $e) {
+                        $roomErrors['photo'] = $e->getMessage();
+                    }
+                }
+
+                if (! $roomErrors) {
+                    try {
+                        $oldPhoto = null;
+                        $status = $roomForm['status'];
+
+                        DB::transaction(function () use (&$oldPhoto, $roomForm, $rate, $newPhotoPath, $status) {
+                            if ($roomForm['id'] > 0) {
+                                $room = Room::where('id', $roomForm['id'])->first();
+
+                                if (! $room) {
+                                    throw new \RuntimeException('That room could not be found.');
+                                }
+
+                                $oldPhoto = $room->photo;
+                                $room->update([
+                                    'name' => $roomForm['name'],
+                                    'location' => $roomForm['location'] !== '' ? $roomForm['location'] : null,
+                                    'description' => $roomForm['description'] !== '' ? $roomForm['description'] : null,
+                                    'capacity' => $roomForm['capacity'],
+                                    'amenities' => $roomForm['amenities'] !== '' ? $roomForm['amenities'] : null,
+                                    'rate_per_day' => $rate,
+                                    'photo' => $newPhotoPath ?? $room->photo,
+                                    'status' => $status,
+                                ]);
+                            } else {
+                                Room::create([
+                                    'code' => generate_room_code(),
+                                    'name' => $roomForm['name'],
+                                    'location' => $roomForm['location'] !== '' ? $roomForm['location'] : null,
+                                    'description' => $roomForm['description'] !== '' ? $roomForm['description'] : null,
+                                    'capacity' => $roomForm['capacity'],
+                                    'amenities' => $roomForm['amenities'] !== '' ? $roomForm['amenities'] : null,
+                                    'rate_per_day' => $rate,
+                                    'photo' => $newPhotoPath,
+                                    'status' => $status,
+                                ]);
+                            }
+                        });
+
+                        if ($newPhotoPath !== null) {
+                            remove_uploaded_photo($oldPhoto);
+                        }
+
+                        flash('success', $roomForm['id'] > 0
+                            ? 'Room details were updated.'
+                            : 'Room added. It is now available on the booking page.');
+
+                        return redirect('/profile?tab=rooms');
+                    } catch (\Throwable $e) {
+                        remove_uploaded_photo($newPhotoPath);
+                        report($e);
+                        $roomErrors['form'] = 'We could not save the room. Please try again.';
+                    }
+                }
+
+                $tab = 'rooms';
+            }
         }
 
         $profile = User::find($userId) ?: $user;
@@ -282,6 +417,7 @@ class ProfileController extends Controller
         $nextStay = $upcoming[0] ?? null;
 
         $ownerCottages = collect();
+        $ownerRooms = collect();
         $ownerStats = [
             'total' => 0,
             'active' => 0,
@@ -305,6 +441,12 @@ class ProfileController extends Controller
                 })
                 ->groupBy('c.id')
                 ->orderByDesc('c.id')
+                ->get();
+
+            $ownerRooms = DB::table('rooms as rm')
+                ->select('rm.*')
+                ->selectRaw('(SELECT COUNT(*) FROM bookings b WHERE b.room_id = rm.id) AS booking_count')
+                ->orderByDesc('rm.id')
                 ->get();
 
             $rated = [];
@@ -361,6 +503,7 @@ class ProfileController extends Controller
             'dashboard' => 'Dashboard',
             'bookings' => 'My Bookings',
             'cottages' => 'My Cottages',
+            'rooms' => 'My Rooms',
             'efficiency' => 'Efficiency',
             'settings' => 'Settings',
         ];
@@ -375,6 +518,10 @@ class ProfileController extends Controller
             'cottageErrors' => $cottageErrors,
             'cottageForm' => $cottageForm,
             'editCottage' => $editCottage,
+            'roomErrors' => $roomErrors,
+            'roomForm' => $roomForm,
+            'editRoom' => $editRoom,
+            'ownerRooms' => $ownerRooms,
             'bookings' => $bookings,
             'stats' => $stats,
             'today' => $today,

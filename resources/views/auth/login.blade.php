@@ -48,10 +48,6 @@
             <button class="btn btn-primary btn-block" type="submit">Log In</button>
         </form>
 
-        <div class="auth-footer">
-            <span>Don't have an account?</span>
-            <a class="btn btn-outline-accent btn-sm" href="/signup">Sign Up</a>
-        </div>
     </div>
 </div>
 @include('partials.footer')

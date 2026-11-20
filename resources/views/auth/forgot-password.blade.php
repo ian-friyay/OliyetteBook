@@ -27,9 +27,6 @@
                 <button class="btn btn-primary btn-block" type="submit">Send Reset Link</button>
             </form>
 
-            <div class="auth-footer">
-                <a href="/login">Back to Log In</a>
-            </div>
         @endif
     </div>
 </div>
