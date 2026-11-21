@@ -12,7 +12,6 @@
         ['label' => 'Home', 'href' => '/', 'key' => 'home', 'roles' => ['guest', 'owner']],
         ['label' => 'Profiles', 'href' => '/profile', 'key' => 'profile', 'roles' => ['guest', 'owner']],
         ['label' => 'Booking', 'href' => '/booking', 'key' => 'booking', 'roles' => ['guest']],
-        ['label' => 'Admin', 'href' => '/admin', 'key' => 'admin', 'roles' => ['admin']],
         ['label' => 'User Reviews', 'href' => '/reviews', 'key' => 'reviews', 'roles' => ['guest', 'owner']],
     ];
 
@@ -46,16 +45,18 @@
 
         @if ($minimalHeader)
         @else
-            <span class="header-divider" aria-hidden="true"></span>
+            @if ($visibleNav)
+                <span class="header-divider" aria-hidden="true"></span>
 
-            <nav class="main-nav" aria-label="Main navigation">
-                @foreach ($visibleNav as $item)
-                    @php $active = $currentKey === $item['key']; @endphp
-                    <a class="nav-link{{ $active ? ' is-active' : '' }}"
-                       href="{{ $item['href'] }}"
-                       @if ($active) aria-current="page" @endif>{{ $item['label'] }}</a>
-                @endforeach
-            </nav>
+                <nav class="main-nav" aria-label="Main navigation">
+                    @foreach ($visibleNav as $item)
+                        @php $active = $currentKey === $item['key']; @endphp
+                        <a class="nav-link{{ $active ? ' is-active' : '' }}"
+                           href="{{ $item['href'] }}"
+                           @if ($active) aria-current="page" @endif>{{ $item['label'] }}</a>
+                    @endforeach
+                </nav>
+            @endif
 
             <div class="header-actions">
                 <button class="icon-btn theme-toggle" type="button" data-theme-toggle
