@@ -250,6 +250,13 @@ textarea {
   display: inline-flex;
 }
 
+.header-mobile-actions {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  margin-left: auto;
+}
+
 .nav-toggle {
   display: none;
   width: 42px;
@@ -340,10 +347,6 @@ textarea {
 
 .mobile-drawer__foot .btn-ghost:hover {
   background: rgba(255, 255, 255, 0.1);
-}
-
-.mobile-drawer__foot .theme-icon svg {
-  display: block;
 }
 
 .drawer-backdrop {
@@ -2066,9 +2069,12 @@ table.table tbody tr:hover {
     display: none;
   }
 
+  .header-mobile-actions {
+    display: flex;
+  }
+
   .nav-toggle {
     display: inline-flex;
-    margin-left: auto;
   }
 
   .page {

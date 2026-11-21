@@ -72,10 +72,18 @@
                 @endif
             </div>
 
-            <button class="nav-toggle" type="button" data-nav-toggle
-                    aria-controls="mobileNav" aria-expanded="false" aria-label="Open menu">
-                {!! icon('menu') !!}
-            </button>
+            <div class="header-mobile-actions">
+                <button class="icon-btn theme-toggle" type="button" data-theme-toggle
+                        aria-label="Toggle dark mode" title="Toggle dark mode">
+                    <span class="theme-icon theme-icon--sun">{!! icon('sun') !!}</span>
+                    <span class="theme-icon theme-icon--moon">{!! icon('moon') !!}</span>
+                </button>
+
+                <button class="nav-toggle" type="button" data-nav-toggle
+                        aria-controls="mobileNav" aria-expanded="false" aria-label="Open menu">
+                    {!! icon('menu') !!}
+                </button>
+            </div>
         @endif
     </div>
 </header>
@@ -109,11 +117,6 @@
         </nav>
 
         <div class="mobile-drawer__foot">
-            <button class="btn btn-ghost btn-block theme-toggle" type="button" data-theme-toggle>
-                <span class="theme-icon theme-icon--sun">{!! icon('sun') !!}</span>
-                <span class="theme-icon theme-icon--moon">{!! icon('moon') !!}</span>
-                Toggle theme
-            </button>
             @if ($user)
                 <a class="btn btn-accent btn-block" href="/logout">Log Out</a>
             @else
