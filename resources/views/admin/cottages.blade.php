@@ -7,7 +7,7 @@
             <div>
                 <p class="eyebrow">Accommodations</p>
                 <h1 class="page-title">Cottage Management</h1>
-                <p class="page-sub">Add cottages, assign owners, change rates, and publish or hide listings.</p>
+                <p class="page-sub">Review listings, assign owners, change rates, and publish or hide cottages.</p>
             </div>
         </div>
 
@@ -15,111 +15,109 @@
             <p class="form-error" role="alert">{{ $errors['form'] }}</p>
         @endif
 
-        <div class="panel reveal">
-            <div class="section-heading">
-                <h2>{{ $formValues['id'] > 0 ? 'Edit cottage #' . (int) $formValues['id'] : 'Add a cottage' }}</h2>
-                @if ($formValues['id'] > 0)
+        @if ($formValues['id'] > 0)
+            <div class="panel reveal">
+                <div class="section-heading">
+                    <h2>Edit cottage #{{ (int) $formValues['id'] }}</h2>
                     <a class="btn btn-ghost btn-sm" href="/admin/cottages">Cancel edit</a>
-                @endif
+                </div>
+
+                <form class="form" method="post" action="/admin/cottages" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="form" value="cottage">
+                    <input type="hidden" name="cottage_id" value="{{ (int) $formValues['id'] }}">
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="name">Cottage Name</label>
+                            <input type="text" id="name" name="name" value="{{ $formValues['name'] }}"
+                                   maxlength="100" required{{ isset($errors['name']) ? ' aria-invalid="true"' : '' }}>
+                            @if (isset($errors['name']))
+                                <p class="field-error">{{ $errors['name'] }}</p>
+                            @endif
+                        </div>
+                        <div class="field">
+                            <label for="owner_id">Owner</label>
+                            <select id="owner_id" name="owner_id"{{ isset($errors['owner_id']) ? ' aria-invalid="true"' : '' }}>
+                                <option value="">Unassigned</option>
+                                @foreach ($owners as $owner)
+                                    <option value="{{ (int) $owner->id }}"{{ (string) $formValues['owner_id'] === (string) $owner->id ? ' selected' : '' }}>
+                                        {{ $owner->first_name }} {{ $owner->last_name }} ({{ $owner->email }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @if (isset($errors['owner_id']))
+                                <p class="field-error">{{ $errors['owner_id'] }}</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" value="{{ $formValues['location'] }}"
+                                   maxlength="100"{{ isset($errors['location']) ? ' aria-invalid="true"' : '' }}>
+                            @if (isset($errors['location']))
+                                <p class="field-error">{{ $errors['location'] }}</p>
+                            @endif
+                        </div>
+                        <div class="field">
+                            <label for="status">Status</label>
+                            <select id="status" name="status">
+                                <option value="pending"{{ $formValues['status'] === 'pending' ? ' selected' : '' }}>Pending</option>
+                                <option value="active"{{ $formValues['status'] === 'active' ? ' selected' : '' }}>Active</option>
+                                <option value="hidden"{{ $formValues['status'] === 'hidden' ? ' selected' : '' }}>Hidden</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description">{{ $formValues['description'] }}</textarea>
+                    </div>
+
+                    <div class="form-grid">
+                        <div class="field">
+                            <label for="capacity">Capacity</label>
+                            <input type="number" id="capacity" name="capacity" min="1" max="50"
+                                   value="{{ (int) $formValues['capacity'] }}" required{{ isset($errors['capacity']) ? ' aria-invalid="true"' : '' }}>
+                            @if (isset($errors['capacity']))
+                                <p class="field-error">{{ $errors['capacity'] }}</p>
+                            @endif
+                        </div>
+                        <div class="field">
+                            <label for="rate_per_day">Rate per Day (₱)</label>
+                            <input type="number" id="rate_per_day" name="rate_per_day" min="1" step="0.01"
+                                   value="{{ (string) $formValues['rate_per_day'] }}" required{{ isset($errors['rate_per_day']) ? ' aria-invalid="true"' : '' }}>
+                            @if (isset($errors['rate_per_day']))
+                                <p class="field-error">{{ $errors['rate_per_day'] }}</p>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label for="amenities">Amenities</label>
+                        <input type="text" id="amenities" name="amenities" value="{{ $formValues['amenities'] }}"
+                               placeholder="Air conditioning, Wi-Fi, Beach access">
+                    </div>
+
+                    <div class="field">
+                        <label for="photo">Cottage Photo</label>
+                        <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp,image/gif">
+                        <p class="helper">JPG, PNG, WEBP, or GIF. Maximum 3 MB.</p>
+                        @if (isset($errors['photo']))
+                            <p class="field-error">{{ $errors['photo'] }}</p>
+                        @endif
+                        @if ($currentPhoto)
+                            <img class="mt-1" src="{{ $currentPhoto }}" alt="Current cottage photo"
+                                 style="max-width:220px;border-radius:12px;">
+                        @endif
+                    </div>
+
+                    <button class="btn btn-primary" type="submit">Save Changes</button>
+                </form>
             </div>
-
-            <form class="form" method="post" action="/admin/cottages" enctype="multipart/form-data">
-                @csrf
-                <input type="hidden" name="form" value="cottage">
-                <input type="hidden" name="cottage_id" value="{{ (int) $formValues['id'] }}">
-
-                <div class="form-grid">
-                    <div class="field">
-                        <label for="name">Cottage Name</label>
-                        <input type="text" id="name" name="name" value="{{ $formValues['name'] }}"
-                               maxlength="100" required{{ isset($errors['name']) ? ' aria-invalid="true"' : '' }}>
-                        @if (isset($errors['name']))
-                            <p class="field-error">{{ $errors['name'] }}</p>
-                        @endif
-                    </div>
-                    <div class="field">
-                        <label for="owner_id">Owner</label>
-                        <select id="owner_id" name="owner_id"{{ isset($errors['owner_id']) ? ' aria-invalid="true"' : '' }}>
-                            <option value="">Unassigned</option>
-                            @foreach ($owners as $owner)
-                                <option value="{{ (int) $owner->id }}"{{ (string) $formValues['owner_id'] === (string) $owner->id ? ' selected' : '' }}>
-                                    {{ $owner->first_name }} {{ $owner->last_name }} ({{ $owner->email }})
-                                </option>
-                            @endforeach
-                        </select>
-                        @if (isset($errors['owner_id']))
-                            <p class="field-error">{{ $errors['owner_id'] }}</p>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="form-grid">
-                    <div class="field">
-                        <label for="location">Location</label>
-                        <input type="text" id="location" name="location" value="{{ $formValues['location'] }}"
-                               maxlength="100"{{ isset($errors['location']) ? ' aria-invalid="true"' : '' }}>
-                        @if (isset($errors['location']))
-                            <p class="field-error">{{ $errors['location'] }}</p>
-                        @endif
-                    </div>
-                    <div class="field">
-                        <label for="status">Status</label>
-                        <select id="status" name="status">
-                            <option value="pending"{{ $formValues['status'] === 'pending' ? ' selected' : '' }}>Pending</option>
-                            <option value="active"{{ $formValues['status'] === 'active' ? ' selected' : '' }}>Active</option>
-                            <option value="hidden"{{ $formValues['status'] === 'hidden' ? ' selected' : '' }}>Hidden</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label for="description">Description</label>
-                    <textarea id="description" name="description">{{ $formValues['description'] }}</textarea>
-                </div>
-
-                <div class="form-grid">
-                    <div class="field">
-                        <label for="capacity">Capacity</label>
-                        <input type="number" id="capacity" name="capacity" min="1" max="50"
-                               value="{{ (int) $formValues['capacity'] }}" required{{ isset($errors['capacity']) ? ' aria-invalid="true"' : '' }}>
-                        @if (isset($errors['capacity']))
-                            <p class="field-error">{{ $errors['capacity'] }}</p>
-                        @endif
-                    </div>
-                    <div class="field">
-                        <label for="rate_per_day">Rate per Day (₱)</label>
-                        <input type="number" id="rate_per_day" name="rate_per_day" min="1" step="0.01"
-                               value="{{ (string) $formValues['rate_per_day'] }}" required{{ isset($errors['rate_per_day']) ? ' aria-invalid="true"' : '' }}>
-                        @if (isset($errors['rate_per_day']))
-                            <p class="field-error">{{ $errors['rate_per_day'] }}</p>
-                        @endif
-                    </div>
-                </div>
-
-                <div class="field">
-                    <label for="amenities">Amenities</label>
-                    <input type="text" id="amenities" name="amenities" value="{{ $formValues['amenities'] }}"
-                           placeholder="Air conditioning, Wi-Fi, Beach access">
-                </div>
-
-                <div class="field">
-                    <label for="photo">Cottage Photo</label>
-                    <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp,image/gif">
-                    <p class="helper">JPG, PNG, WEBP, or GIF. Maximum 3 MB.</p>
-                    @if (isset($errors['photo']))
-                        <p class="field-error">{{ $errors['photo'] }}</p>
-                    @endif
-                    @if ($currentPhoto)
-                        <img class="mt-1" src="{{ $currentPhoto }}" alt="Current cottage photo"
-                             style="max-width:220px;border-radius:12px;">
-                    @endif
-                </div>
-
-                <button class="btn btn-primary" type="submit">
-                    {{ $formValues['id'] > 0 ? 'Save Changes' : 'Create Cottage' }}
-                </button>
-            </form>
-        </div>
+        @endif
 
         <div class="tabs">
             <a class="tab{{ $filter === 'all' ? ' is-active' : '' }}" href="/admin/cottages">All</a>
@@ -137,7 +135,7 @@
             @if ($cottages->isEmpty())
                 <div class="empty-state">
                     <h3>No cottages found</h3>
-                    <p>Try a different filter or create a cottage above.</p>
+                    <p>Try a different filter.</p>
                 </div>
             @else
                 <div class="table-wrap">

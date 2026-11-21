@@ -79,7 +79,12 @@ class CottageController extends Controller
                     'status' => (string) $request->input('status', 'pending'),
                 ];
 
-                if ($formValues['id'] > 0 && ! $editCottage) {
+                if ($formValues['id'] <= 0) {
+                    flash('error', 'Cottages are added by resort owners from their profile.');
+
+                    return redirect('/admin/cottages');
+                }
+                if (! $editCottage) {
                     $errors['form'] = 'That cottage could not be found.';
                 }
                 if ($formValues['name'] === '' || mb_strlen($formValues['name']) > 100) {
@@ -121,38 +126,21 @@ class CottageController extends Controller
                         $oldPhoto = null;
 
                         DB::transaction(function () use (&$oldPhoto, $formValues, $rate, $ownerId, $newPhotoPath) {
-                            if ($formValues['id'] > 0) {
-                                Cottage::where('id', $formValues['id'])->update([
-                                    'owner_id' => $ownerId,
-                                    'name' => $formValues['name'],
-                                    'location' => $formValues['location'] !== '' ? $formValues['location'] : null,
-                                    'description' => $formValues['description'] !== '' ? $formValues['description'] : null,
-                                    'capacity' => $formValues['capacity'],
-                                    'amenities' => $formValues['amenities'] !== '' ? $formValues['amenities'] : null,
-                                    'rate_per_day' => $rate,
-                                    'status' => $formValues['status'],
-                                ]);
-                                $cottageId = $formValues['id'];
+                            Cottage::where('id', $formValues['id'])->update([
+                                'owner_id' => $ownerId,
+                                'name' => $formValues['name'],
+                                'location' => $formValues['location'] !== '' ? $formValues['location'] : null,
+                                'description' => $formValues['description'] !== '' ? $formValues['description'] : null,
+                                'capacity' => $formValues['capacity'],
+                                'amenities' => $formValues['amenities'] !== '' ? $formValues['amenities'] : null,
+                                'rate_per_day' => $rate,
+                                'status' => $formValues['status'],
+                            ]);
 
-                                $existing = CottagePhoto::where('cottage_id', $cottageId)
-                                    ->orderBy('sort_order')
-                                    ->orderBy('id')
-                                    ->first();
-                            } else {
-                                $cottage = Cottage::create([
-                                    'code' => generate_cottage_code(),
-                                    'owner_id' => $ownerId,
-                                    'name' => $formValues['name'],
-                                    'location' => $formValues['location'] !== '' ? $formValues['location'] : null,
-                                    'description' => $formValues['description'] !== '' ? $formValues['description'] : null,
-                                    'capacity' => $formValues['capacity'],
-                                    'amenities' => $formValues['amenities'] !== '' ? $formValues['amenities'] : null,
-                                    'rate_per_day' => $rate,
-                                    'status' => $formValues['status'],
-                                ]);
-                                $cottageId = (int) $cottage->id;
-                                $existing = null;
-                            }
+                            $existing = CottagePhoto::where('cottage_id', $formValues['id'])
+                                ->orderBy('sort_order')
+                                ->orderBy('id')
+                                ->first();
 
                             if ($newPhotoPath !== null) {
                                 if ($existing) {
@@ -160,7 +148,7 @@ class CottageController extends Controller
                                     CottagePhoto::where('id', $existing->id)->update(['path' => $newPhotoPath]);
                                 } else {
                                     CottagePhoto::create([
-                                        'cottage_id' => $cottageId,
+                                        'cottage_id' => $formValues['id'],
                                         'path' => $newPhotoPath,
                                         'sort_order' => 0,
                                     ]);
@@ -169,7 +157,7 @@ class CottageController extends Controller
                         });
 
                         remove_uploaded_photo($oldPhoto);
-                        flash('success', $formValues['id'] > 0 ? 'Cottage updated.' : 'Cottage created.');
+                        flash('success', 'Cottage updated.');
 
                         return redirect('/admin/cottages');
                     } catch (\Throwable $e) {
