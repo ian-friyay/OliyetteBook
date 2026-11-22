@@ -76,6 +76,7 @@
                             <h3>{{ $cottage->name }}</h3>
                             <p class="cottage-meta">{!! icon('pin') !!}<span>{{ $cottage->location ?: 'Oliyette Resort' }}</span></p>
                             <div class="rating-line">
+                                <span>Up to {{ (int) $cottage->capacity }} guests</span>
                                 @if ($reviewCount > 0)
                                     {!! star_html($rating, $reviewCount) !!}
                                     <span>{{ number_format($rating, 1) }} ({{ $reviewCount }})</span>
@@ -147,6 +148,30 @@
                     </div>
                 </div>
 
+                <section class="booking-calendar" data-booking-calendar aria-label="Booking availability calendar">
+                    <div class="booking-calendar__top">
+                        <div>
+                            <p class="eyebrow">Availability</p>
+                            <h2 class="booking-calendar__month" id="bookingCalendarMonth"></h2>
+                        </div>
+                        <div class="booking-calendar__nav">
+                            <button class="btn btn-ghost btn-sm" type="button" data-calendar-prev aria-label="Previous month">Prev</button>
+                            <button class="btn btn-ghost btn-sm" type="button" data-calendar-next aria-label="Next month">Next</button>
+                        </div>
+                    </div>
+                    <div class="booking-calendar__weekdays" aria-hidden="true">
+                        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span>
+                        <span>Thu</span><span>Fri</span><span>Sat</span>
+                    </div>
+                    <div class="booking-calendar__days" id="bookingCalendarDays"></div>
+                    <div class="booking-calendar__legend" aria-hidden="true">
+                        <span><i class="booking-calendar__swatch"></i>Available</span>
+                        <span><i class="booking-calendar__swatch is-reserved"></i>Reserved</span>
+                        <span><i class="booking-calendar__swatch is-selected"></i>Your stay</span>
+                    </div>
+                    <p class="helper" id="bookingCalendarHelp" aria-live="polite">Choose a check-in date, then a check-out date. Past and reserved dates are unavailable.</p>
+                </section>
+
                 <div class="form-grid">
                     <div class="field">
                         <label for="check_in_time">Check-in Time</label>
@@ -214,7 +239,7 @@
             @endif
 
             <p class="price mt-2">{{ peso($item->rate_per_day) }}<small> / day</small></p>
-            <p><strong>Capacity:</strong> {{ $isRoom ? (int) $item->capacity : '1-16' }} guests</p>
+            <p><strong>Capacity:</strong> {{ (int) $item->capacity }} guests</p>
 
             @if (! empty($item->description))
                 <p class="text-muted">{{ $item->description }}</p>

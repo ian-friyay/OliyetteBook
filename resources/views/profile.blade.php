@@ -459,7 +459,7 @@
                     <div class="field">
                         <label for="cottage_photo">Cottage Photo</label>
                         <input type="file" id="cottage_photo" name="photo" accept="image/jpeg,image/png,image/webp,image/gif">
-                        <p class="helper">JPG, PNG, WEBP, or GIF. Maximum 3 MB.{{ $cottageForm['photo'] ? ' A photo is already on file.' : '' }}</p>
+                        <p class="helper">JPG, PNG, WEBP, or GIF. Maximum 5 MB.{{ $cottageForm['photo'] ? ' A photo is already on file.' : '' }}</p>
                         @if (isset($cottageErrors['photo']))
                             <p class="field-error">{{ $cottageErrors['photo'] }}</p>
                         @endif
@@ -616,7 +616,7 @@
                     <div class="field">
                         <label for="room_photo">Room Photo</label>
                         <input type="file" id="room_photo" name="photo" accept="image/jpeg,image/png,image/webp,image/gif">
-                        <p class="helper">JPG, PNG, WEBP, or GIF. Maximum 3 MB.{{ $roomForm['photo'] ? ' A photo is already on file.' : '' }}</p>
+                        <p class="helper">JPG, PNG, WEBP, or GIF. Maximum 5 MB.{{ $roomForm['photo'] ? ' A photo is already on file.' : '' }}</p>
                         @if (isset($roomErrors['photo']))
                             <p class="field-error">{{ $roomErrors['photo'] }}</p>
                         @endif
@@ -865,6 +865,32 @@
                 <h2>Data privacy</h2>
                 <p class="text-muted">OliyetteBook only collects the details needed to manage your reservation. Read the <a href="/contact#privacy">Data Privacy notice</a> for more information.</p>
             </div>
+
+            @if ($role === 'guest')
+                <div class="panel reveal">
+                    <div class="section-heading">
+                        <h2>Delete account</h2>
+                    </div>
+                    <p class="helper mb-2">
+                        Active or pending reservations must be resolved first. Reservation history is retained,
+                        but your personal details and review text are anonymized.
+                    </p>
+                    <form class="form" method="post" action="/profile?tab=settings"
+                          data-confirm="Delete your account and anonymize your personal details? This cannot be undone.">
+                        @csrf
+                        <input type="hidden" name="form" value="delete_account">
+                        <div class="field">
+                            <label for="delete_password">Confirm with your password</label>
+                            <div class="password-field">
+                                <input type="password" id="delete_password" name="delete_password"
+                                       autocomplete="current-password" required>
+                                {!! password_toggle() !!}
+                            </div>
+                        </div>
+                        <button class="btn btn-danger" type="submit">Delete Account</button>
+                    </form>
+                </div>
+            @endif
         @endif
     </section>
 </div>

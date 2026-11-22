@@ -158,6 +158,130 @@ class ProfileController extends Controller
                 $tab = 'settings';
             }
 
+            if ($form === 'delete_account') {
+                if ($role !== 'guest') {
+                    abort(403, 'Only guest accounts can be deleted here.');
+                }
+
+                $password = (string) $request->input('delete_password', '');
+                $credentialStatus = DB::transaction(function () use ($userId, $password) {
+                    $account = User::where('id', $userId)->lockForUpdate()->first();
+                    if (! $account || $account->role !== 'guest') {
+                        return 'missing';
+                    }
+
+                    $cutoff = now()->subMinutes((int) config('booking.account_deletion_lock_minutes'));
+                    DB::table('account_deletion_attempts')
+                        ->where('user_id', $userId)
+                        ->where('attempted_at', '<', $cutoff)
+                        ->delete();
+
+                    $recentAttempts = DB::table('account_deletion_attempts')
+                        ->where('user_id', $userId)
+                        ->where('attempted_at', '>=', $cutoff)
+                        ->count();
+
+                    if ($recentAttempts >= (int) config('booking.account_deletion_max_attempts')) {
+                        return 'locked';
+                    }
+                    if (! password_verify($password, (string) $account->password_hash)) {
+                        DB::table('account_deletion_attempts')->insert([
+                            'user_id' => $userId,
+                            'attempted_at' => now(),
+                        ]);
+
+                        return $recentAttempts + 1 >= (int) config('booking.account_deletion_max_attempts')
+                            ? 'locked'
+                            : 'incorrect';
+                    }
+
+                    return 'verified';
+                });
+
+                if ($credentialStatus !== 'verified') {
+                    if ($credentialStatus === 'missing') {
+                        flash('error', 'This guest account could not be found.');
+                    } elseif ($credentialStatus === 'locked') {
+                        flash('error', 'Too many attempts. Account deletion is locked for '
+                            . (int) config('booking.account_deletion_lock_minutes') . ' minutes.');
+                    } else {
+                        flash('error', 'The password is incorrect.');
+                    }
+
+                    return redirect('/profile?tab=settings');
+                }
+
+                $email = (string) $user->email;
+                $name = trim($user->first_name . ' ' . $user->last_name);
+
+                try {
+                    DB::transaction(function () use ($userId, $email, $password) {
+                        $account = User::where('id', $userId)->lockForUpdate()->first();
+
+                        if (! $account || $account->role !== 'guest') {
+                            throw new \RuntimeException('This guest account could not be found.');
+                        }
+                        if (! password_verify($password, (string) $account->password_hash)) {
+                            throw new \RuntimeException('Your password changed. Please try again.');
+                        }
+
+                        $hasActiveBookings = DB::table('bookings')
+                            ->where('user_id', $userId)
+                            ->whereIn('status', ['pending', 'approved'])
+                            ->exists();
+
+                        if ($hasActiveBookings) {
+                            throw new \RuntimeException('Resolve active bookings first before deleting your account.');
+                        }
+
+                        DB::table('bookings')->where('user_id', $userId)->update(['special_requests' => null]);
+                        DB::table('reviews')->where('user_id', $userId)->update(['comment' => null]);
+                        DB::table('feedback')->where('user_id', $userId)->delete();
+                        DB::table('password_resets')->where('user_id', $userId)->update(['used' => true]);
+                        DB::table('login_attempts')->where('email', $email)->delete();
+                        DB::table('sessions')->where('user_id', $userId)->delete();
+                        DB::table('account_deletion_attempts')->where('user_id', $userId)->delete();
+
+                        User::where('id', $userId)->update([
+                            'first_name' => 'Deleted',
+                            'last_name' => 'Guest',
+                            'email' => 'deleted-' . $userId . '-' . bin2hex(random_bytes(6)) . '@deleted.invalid',
+                            'phone' => '',
+                            'password_hash' => password_hash(bin2hex(random_bytes(32)), PASSWORD_DEFAULT),
+                            'status' => 'deactivated',
+                            'remember_token' => null,
+                        ]);
+                    });
+
+                    $emailSent = send_mail(
+                        $email,
+                        'Your OliyetteBook account was deleted',
+                        "Hello {$name},\n\n"
+                            . "Your account was deleted and its personal details were anonymized. "
+                            . "Reservation records are retained for resort operations.\n\n"
+                            . "— OliyetteBook"
+                    );
+
+                    Auth::logout();
+                    $request->session()->invalidate();
+                    $request->session()->regenerateToken();
+                    flash($emailSent ? 'success' : 'error', $emailSent
+                        ? 'Your account was deleted and your personal details were anonymized.'
+                        : 'Your account was deleted, but we could not send the confirmation email. Please contact the resort.');
+
+                    return redirect('/');
+                } catch (\RuntimeException $e) {
+                    flash('error', $e->getMessage());
+
+                    return redirect('/profile?tab=settings');
+                } catch (\Throwable $e) {
+                    report($e);
+                    flash('error', 'We could not delete your account. Please try again.');
+
+                    return redirect('/profile?tab=settings');
+                }
+            }
+
             if ($form === 'cottage') {
                 if ($role !== 'owner') {
                     abort(403, 'Access denied.');

@@ -312,6 +312,22 @@
     });
   });
 
+  var feedbackForm = document.querySelector("[data-feedback-form]");
+  if (feedbackForm) {
+    var feedbackInput = feedbackForm.querySelector('textarea[name="comment"]');
+    var feedbackSubmit = feedbackForm.querySelector('button[type="submit"]');
+    if (feedbackInput && feedbackSubmit) {
+      function syncFeedbackSubmit() {
+        var canSubmit = feedbackInput.value.trim().length > 0;
+        feedbackSubmit.disabled = !canSubmit;
+        feedbackSubmit.setAttribute("aria-disabled", canSubmit ? "false" : "true");
+      }
+
+      feedbackInput.addEventListener("input", syncFeedbackSubmit);
+      syncFeedbackSubmit();
+    }
+  }
+
   var bookingForm = document.getElementById("bookingForm");
   var summaryModal = document.getElementById("bookingSummary");
   var summaryConfirm = document.getElementById("summaryConfirm");
@@ -415,10 +431,11 @@
     today.setHours(0, 0, 0, 0);
     var todayValue = dateValue(today);
     checkIn.min = todayValue;
+    checkOut.min = checkIn.value || todayValue;
 
     if (checkIn.value) {
       checkOut.min = checkIn.value;
-      if (!checkOut.value || checkOut.value < checkIn.value) {
+      if (checkOut.value && checkOut.value < checkIn.value) {
         checkOut.value = checkIn.value;
       }
     }
@@ -470,13 +487,134 @@
     }
   }
 
+  var bookingCalendar = document.querySelector("[data-booking-calendar]");
+  var bookingCalendarMonth = document.getElementById("bookingCalendarMonth");
+  var bookingCalendarDays = document.getElementById("bookingCalendarDays");
+  var bookingCalendarHelp = document.getElementById("bookingCalendarHelp");
+  var bookingCalendarDate = new Date();
+  bookingCalendarDate.setDate(1);
+
+  function renderBookingCalendar() {
+    if (!bookingCalendar || !bookingCalendarDays || !bookingCalendarMonth || !bookingForm) return;
+
+    var checkIn = bookingForm.querySelector('[name="check_in"]');
+    var checkOut = bookingForm.querySelector('[name="check_out"]');
+    var selectedStart = checkIn ? checkIn.value : "";
+    var selectedEnd = checkOut ? checkOut.value : "";
+    var firstDay = new Date(bookingCalendarDate.getFullYear(), bookingCalendarDate.getMonth(), 1);
+    var daysInMonth = new Date(bookingCalendarDate.getFullYear(), bookingCalendarDate.getMonth() + 1, 0).getDate();
+    var today = new Date();
+    today.setHours(0, 0, 0, 0);
+    bookingCalendarMonth.textContent = new Intl.DateTimeFormat(undefined, {
+      month: "long",
+      year: "numeric"
+    }).format(firstDay);
+
+    while (bookingCalendarDays.firstChild) {
+      bookingCalendarDays.removeChild(bookingCalendarDays.firstChild);
+    }
+
+    for (var blank = 0; blank < firstDay.getDay(); blank++) {
+      var spacer = document.createElement("span");
+      spacer.setAttribute("aria-hidden", "true");
+      bookingCalendarDays.appendChild(spacer);
+    }
+
+    for (var day = 1; day <= daysInMonth; day++) {
+      var date = new Date(firstDay.getFullYear(), firstDay.getMonth(), day);
+      var value = dateValue(date);
+      var isPast = date < today;
+      var isReserved = unavailable.some(function (range) {
+        return value >= range.check_in && value <= range.check_out;
+      });
+      var waitingForCheckout = Boolean(selectedStart && !selectedEnd);
+      var isBeforeCheckIn = waitingForCheckout && value < selectedStart;
+      var blockedCheckout = waitingForCheckout && value >= selectedStart && overlapsUnavailable(selectedStart, value);
+      var isSelected = value === selectedStart || value === selectedEnd;
+      var isInRange = Boolean(selectedStart && selectedEnd && value >= selectedStart && value <= selectedEnd);
+      var button = document.createElement("button");
+      var dateLabel = new Intl.DateTimeFormat(undefined, {
+        weekday: "long",
+        month: "long",
+        day: "numeric",
+        year: "numeric"
+      }).format(date);
+
+      button.type = "button";
+      button.className = "booking-calendar__day";
+      button.textContent = String(day);
+      button.disabled = isPast || isReserved || isBeforeCheckIn || blockedCheckout;
+      var availabilityLabel = ", available";
+      if (blockedCheckout) availabilityLabel = ", unavailable for the selected stay";
+      if (isBeforeCheckIn) availabilityLabel = ", before check-in";
+      if (isPast) availabilityLabel = ", in the past";
+      if (isReserved) availabilityLabel = ", reserved";
+      button.setAttribute("aria-label", dateLabel + availabilityLabel);
+      button.setAttribute("aria-pressed", isSelected ? "true" : "false");
+      if (isPast) button.classList.add("is-past");
+      if (isReserved) button.classList.add("is-reserved");
+      if (isInRange) button.classList.add("is-range");
+      if (isSelected) button.classList.add("is-selected");
+      if (value === dateValue(today)) button.classList.add("is-today");
+      button.addEventListener("click", function (event) {
+        var chosenDate = event.currentTarget.getAttribute("data-date");
+        if (!checkIn || !checkOut || !chosenDate) return;
+
+        if (!checkIn.value || checkOut.value) {
+          checkIn.value = chosenDate;
+          checkOut.value = "";
+        } else {
+          checkOut.value = chosenDate;
+        }
+
+        syncDateInputs();
+        renderBookingCalendar();
+      });
+      button.setAttribute("data-date", value);
+      bookingCalendarDays.appendChild(button);
+    }
+
+    if (bookingCalendarHelp) {
+      if (selectedStart && selectedEnd) {
+        bookingCalendarHelp.textContent = "Stay selected: " + selectedStart + " to " + selectedEnd + ".";
+      } else if (selectedStart) {
+        bookingCalendarHelp.textContent = "Check-in selected. Choose an available check-out date.";
+      } else {
+        bookingCalendarHelp.textContent = "Choose a check-in date, then a check-out date. Past and reserved dates are unavailable.";
+      }
+    }
+  }
+
+  if (bookingCalendar) {
+    var previousMonth = bookingCalendar.querySelector("[data-calendar-prev]");
+    var nextMonth = bookingCalendar.querySelector("[data-calendar-next]");
+    if (previousMonth) {
+      previousMonth.addEventListener("click", function () {
+        bookingCalendarDate.setMonth(bookingCalendarDate.getMonth() - 1);
+        renderBookingCalendar();
+      });
+    }
+    if (nextMonth) {
+      nextMonth.addEventListener("click", function () {
+        bookingCalendarDate.setMonth(bookingCalendarDate.getMonth() + 1);
+        renderBookingCalendar();
+      });
+    }
+  }
+
   if (bookingForm) {
     var checkInInput = bookingForm.querySelector('[name="check_in"]');
     var checkOutInput = bookingForm.querySelector('[name="check_out"]');
     var checkInTimeInput = bookingForm.querySelector('[name="check_in_time"]');
     var checkOutTimeInput = bookingForm.querySelector('[name="check_out_time"]');
-    if (checkInInput) checkInInput.addEventListener("change", syncDateInputs);
-    if (checkOutInput) checkOutInput.addEventListener("change", syncDateInputs);
+    if (checkInInput) checkInInput.addEventListener("change", function () {
+      syncDateInputs();
+      renderBookingCalendar();
+    });
+    if (checkOutInput) checkOutInput.addEventListener("change", function () {
+      syncDateInputs();
+      renderBookingCalendar();
+    });
     if (checkInTimeInput) checkInTimeInput.addEventListener("change", syncDateInputs);
     if (checkOutTimeInput) {
       checkOutTimeInput.addEventListener("input", function () {
@@ -486,6 +624,7 @@
       checkOutTimeInput.addEventListener("change", syncDateInputs);
     }
     syncDateInputs();
+    renderBookingCalendar();
 
     bookingForm.addEventListener("submit", function (event) {
       if (bookingForm.dataset.confirmed === "yes") return;

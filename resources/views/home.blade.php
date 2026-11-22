@@ -56,6 +56,7 @@
                             <span>{{ $cottage->location ?: 'Oliyette Resort' }}</span>
                         </p>
                         <div class="rating-line">
+                            <span>Up to {{ (int) $cottage->capacity }} guests</span>
                             @if ($reviewCount > 0)
                                 {!! star_html($rating, $reviewCount) !!}
                                 <span>{{ number_format($rating, 1) }} ({{ $reviewCount }})</span>

@@ -86,6 +86,12 @@
     </aside>
 </div>
 
+<section class="panel reveal privacy-note" id="terms">
+    <h2>Terms of Service</h2>
+    <p class="text-muted">Keep your account and contact details accurate. Reservation requests remain pending until approved by the resort. Check the accommodation, dates, guest count, nightly rate, and applicable entrance fee before submitting a request.</p>
+    <p class="text-muted">Guests may cancel pending or approved reservations from their account. Declined, cancelled, and completed reservations cannot be cancelled again. Contact the resort if you need help with a booking.</p>
+</section>
+
 <section class="panel reveal privacy-note" id="privacy">
     <h2>Data Privacy Notice</h2>
     <p class="text-muted">OliyetteBook collects your name, email address, phone number, and reservation details only to manage your account and cottage booking. Passwords are stored as one-way hashes. We do not sell or share your information with third parties.</p>

@@ -4,6 +4,7 @@
     $isAdminArea = str_starts_with($path, 'admin');
     $minimalHeader = $minimalHeader ?? false;
     $pageTitle = $pageTitle ?? config('app.name');
+    $pageDescription = $pageDescription ?? 'Explore Oliyette Resort accommodations, check availability, and plan a reservation in Victoria, Oriental Mindoro.';
     $bodyClass = $bodyClass ?? '';
     $flashes = get_flashes();
     $role = $user->role ?? null;
@@ -21,6 +22,12 @@
         $fullNav,
         static fn (array $item): bool => in_array($role, $item['roles'], true)
     ));
+    $structuredData = [
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => config('app.name'),
+        'url' => url('/'),
+    ];
 
 @endphp
 <!doctype html>
@@ -29,9 +36,14 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#1C3F60">
+    <meta name="description" content="{{ $pageDescription }}">
+    <meta property="og:title" content="{{ $pageTitle }} · {{ config('app.name') }}">
+    <meta property="og:description" content="{{ $pageDescription }}">
+    <link rel="canonical" href="{{ request()->url() }}">
     <title>{{ $pageTitle }} · {{ config('app.name') }}</title>
     <link rel="icon" href="/assets/img/logo.svg" type="image/svg+xml">
     <link rel="stylesheet" href="/assets/css/styles.css?v={{ filemtime(public_path('assets/css/styles.css')) }}">
+    <script type="application/ld+json">@json($structuredData)</script>
 </head>
 <body class="{{ $bodyClass }}">
 <a class="skip-link" href="#main">Skip to content</a>

@@ -110,7 +110,7 @@ class BookingController extends Controller
 
                     $conflict = DB::table('bookings')
                         ->where('id', '!=', $bookingId)
-                        ->whereIn('status', ['pending', 'approved'])
+                        ->where('status', 'approved')
                         ->where('check_in', '<=', $booking->check_out)
                         ->where('check_out', '>=', $booking->check_in)
                         ->when($booking->room_id, function ($query) use ($booking) {

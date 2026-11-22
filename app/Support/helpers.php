@@ -268,7 +268,7 @@ function save_uploaded_photo(?UploadedFile $file, string $prefix = 'cottage'): ?
         throw new RuntimeException('The photo could not be uploaded. Please try again.');
     }
     if ($file->getSize() > config('booking.max_photo_bytes')) {
-        throw new RuntimeException('Photos must be 3 MB or smaller.');
+        throw new RuntimeException('Photos must be 5 MB or smaller.');
     }
 
     $mime = (string) $file->getMimeType();

@@ -5,13 +5,13 @@
             <img src="/assets/img/logo.svg" alt="{{ config('app.name') }} logo">
         </div>
         <h1 class="auth-title">Forgot Password</h1>
-        <p class="auth-sub">Enter the email on your account and we will send a reset link.</p>
+        <p class="auth-sub">Enter the email on your account and we will send a reset code.</p>
 
         @if ($done)
             <p class="form-success mb-2" role="status">
-                If an active account uses that email, a reset link has been sent. The link expires in one hour.
+                If an active account uses that email, a reset code will be sent. It expires in one hour. If you do not receive one, contact the resort.
             </p>
-            <a class="btn btn-primary btn-block" href="/login">Back to Log In</a>
+            <a class="btn btn-primary btn-block" href="/reset-password">Enter Reset Code</a>
         @else
             @if (! empty($errors['email']))
                 <p class="form-error mb-2" role="alert">{{ $errors['email'] }}</p>
@@ -24,7 +24,7 @@
                     <input type="email" id="email" name="email" value="{{ $email }}"
                            autocomplete="email" required @if (isset($errors['email'])) aria-invalid="true" @endif>
                 </div>
-                <button class="btn btn-primary btn-block" type="submit">Send Reset Link</button>
+                <button class="btn btn-primary btn-block" type="submit">Send Reset Code</button>
             </form>
 
         @endif

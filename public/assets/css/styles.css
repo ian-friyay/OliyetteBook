@@ -689,6 +689,118 @@ textarea:focus-visible,
   align-content: start;
 }
 
+.booking-calendar {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+}
+
+.booking-calendar__top,
+.booking-calendar__nav,
+.booking-calendar__legend {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.booking-calendar__month {
+  margin: 2px 0 0;
+  font-size: 1.05rem;
+}
+
+.booking-calendar__weekdays,
+.booking-calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+  text-align: center;
+}
+
+.booking-calendar__weekdays {
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+.booking-calendar__day {
+  min-width: 0;
+  min-height: 38px;
+  padding: 4px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  font: inherit;
+}
+
+.booking-calendar__day:not(:disabled):hover,
+.booking-calendar__day.is-today {
+  border-color: var(--color-secondary);
+}
+
+.booking-calendar__day.is-range {
+  border-radius: 0;
+  background: rgba(69, 123, 157, 0.12);
+}
+
+.booking-calendar__day.is-selected {
+  border-color: var(--color-secondary);
+  border-radius: 10px;
+  background: var(--color-secondary);
+  color: #fff;
+}
+
+.booking-calendar__day.is-reserved {
+  background: rgba(197, 48, 48, 0.08);
+  color: var(--color-text-muted);
+  text-decoration: line-through;
+}
+
+.booking-calendar__day.is-past {
+  color: var(--color-text-muted);
+  opacity: 0.55;
+}
+
+.booking-calendar__day:disabled {
+  cursor: not-allowed;
+}
+
+.booking-calendar__legend {
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  color: var(--color-text-muted);
+  font-size: 0.75rem;
+}
+
+.booking-calendar__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.booking-calendar__swatch {
+  width: 12px;
+  height: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  background: var(--color-surface);
+}
+
+.booking-calendar__swatch.is-reserved {
+  border-color: rgba(197, 48, 48, 0.2);
+  background: rgba(197, 48, 48, 0.12);
+}
+
+.booking-calendar__swatch.is-selected {
+  border-color: var(--color-secondary);
+  background: var(--color-secondary);
+}
+
 .field {
   display: grid;
   gap: 6px;

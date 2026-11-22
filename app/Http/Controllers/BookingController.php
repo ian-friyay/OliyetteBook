@@ -31,7 +31,7 @@ class BookingController extends Controller
             }
 
             $unavailable = Booking::where('room_id', $selectedRoom->id)
-                ->whereIn('status', ['pending', 'approved'])
+                ->where('status', 'approved')
                 ->where('check_out', '>=', now()->toDateString())
                 ->orderBy('check_in')
                 ->get(['check_in', 'check_out', 'check_in_time', 'check_out_time'])
@@ -54,7 +54,7 @@ class BookingController extends Controller
 
             if ($selected) {
                 $unavailable = Booking::where('cottage_id', $selected->id)
-                    ->whereIn('status', ['pending', 'approved'])
+                    ->where('status', 'approved')
                     ->where('check_out', '>=', now()->toDateString())
                     ->orderBy('check_in')
                     ->get(['check_in', 'check_out', 'check_in_time', 'check_out_time'])
@@ -147,7 +147,7 @@ class BookingController extends Controller
                 }
 
                 $conflict = Booking::where($isRoom ? 'room_id' : 'cottage_id', $isRoom ? $roomId : $cottageId)
-                    ->whereIn('status', ['pending', 'approved'])
+                    ->where('status', 'approved')
                     ->where('check_in', '<=', $checkOut)
                     ->where('check_out', '>=', $checkIn)
                     ->exists();

@@ -15,6 +15,7 @@ class HomeController extends Controller
         return view('home', [
             'cottages' => $cottages,
             'pageTitle' => 'Home',
+            'pageDescription' => 'Explore Oliyette Resort cottages, check availability, and plan a seaside stay in Victoria, Oriental Mindoro.',
         ]);
     }
 }

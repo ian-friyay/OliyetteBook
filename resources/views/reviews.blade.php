@@ -128,7 +128,7 @@
 
             <p class="text-muted">Have a comment or suggestion about the resort? Send it to the resort owner and team.</p>
 
-            <form class="form mt-2" method="post" action="/actions/submit-feedback">
+            <form class="form mt-2" method="post" action="/actions/submit-feedback" data-feedback-form>
                 @csrf
                 <div class="field">
                     <label for="feedback">Your comment about the resort</label>
@@ -136,7 +136,7 @@
                               placeholder="What did you enjoy? What could the resort improve?"></textarea>
                 </div>
 
-                <button class="btn btn-primary" type="submit">Send Comment</button>
+                <button class="btn btn-primary" type="submit" disabled aria-disabled="true">Send Comment</button>
                 <p class="helper">Comments are shared with the resort owner and team.</p>
             </form>
         </aside>

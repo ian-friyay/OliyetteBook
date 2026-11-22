@@ -96,8 +96,8 @@
 
             <div class="field">
                 <label class="checkbox{{ isset($errors['consent']) ? ' is-invalid' : '' }}">
-                    <input type="checkbox" name="consent" value="1" @checked(request()->has('consent'))>
-                    <span>I agree to the <a href="/contact#privacy">Terms of Service and Privacy Policy</a>.</span>
+                    <input type="checkbox" name="consent" value="1" required @checked(request()->has('consent'))>
+                    <span>I agree to the <a href="/contact#terms">Terms of Service</a> and <a href="/contact#privacy">Privacy Policy</a>.</span>
                 </label>
                 @if (isset($errors['consent']))
                     <p class="field-error">{{ $errors['consent'] }}</p>

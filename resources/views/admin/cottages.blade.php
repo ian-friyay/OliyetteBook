@@ -104,7 +104,7 @@
                     <div class="field">
                         <label for="photo">Cottage Photo</label>
                         <input type="file" id="photo" name="photo" accept="image/jpeg,image/png,image/webp,image/gif">
-                        <p class="helper">JPG, PNG, WEBP, or GIF. Maximum 3 MB.</p>
+                        <p class="helper">JPG, PNG, WEBP, or GIF. Maximum 5 MB.</p>
                         @if (isset($errors['photo']))
                             <p class="field-error">{{ $errors['photo'] }}</p>
                         @endif
@@ -191,7 +191,7 @@
                                             @endif
                                             @if ($cottage->status !== 'hidden')
                                                 <form method="post" action="/admin/cottages?status={{ $filter }}"
-                                                      data-confirm="Hide this cottage from the Home page?">
+                                                      data-confirm="{{ (int) $cottage->booking_count > 0 ? 'This cottage has existing reservation records. Hiding it will not change those bookings. Continue?' : 'Hide this cottage from the Home page?' }}">
                                                     @csrf
                                                     <input type="hidden" name="form" value="status">
                                                     <input type="hidden" name="cottage_id" value="{{ (int) $cottage->id }}">
