@@ -5,7 +5,6 @@ use App\Http\Controllers\Admin\CottageController as AdminCottageController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OwnerController as AdminOwnerController;
 use App\Http\Controllers\Admin\RecordController as AdminRecordController;
-use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
@@ -58,8 +57,6 @@ Route::prefix('admin')->name('admin.')->middleware('role:admin')->group(function
 
     Route::match(['get', 'post'], '/users', [AdminUserController::class, 'index'])->name('users');
 
-    Route::match(['get', 'post'], '/reviews', [AdminReviewController::class, 'index'])->name('reviews');
-
     Route::get('/records', [AdminRecordController::class, 'index'])->name('records');
 });
 
@@ -84,7 +81,7 @@ $legacy = [
     'admin/cottages.php' => '/admin/cottages',
     'admin/bookings.php' => '/admin/bookings',
     'admin/users.php' => '/admin/users',
-    'admin/reviews.php' => '/admin/reviews',
+    'admin/reviews.php' => '/admin',
     'admin/records.php' => '/admin/records',
 ];
 

@@ -188,7 +188,7 @@
                         </div>
                         <a class="btn btn-ghost btn-sm" href="/reviews">View user reviews</a>
                     </div>
-                    <p class="text-muted">Read approved guest reviews and comments about the resort.</p>
+                    <p class="text-muted">Read guest comments about the resort.</p>
                 </div>
             @else
                 <div class="page-head">

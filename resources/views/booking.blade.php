@@ -158,6 +158,7 @@
                     </div>
                 </div>
 
+                <p class="helper" id="sameDayNote" hidden></p>
                 <p class="field-error" id="dateAvailability" hidden></p>
 
                 <div class="form-grid">

@@ -5,41 +5,9 @@
         <div>
             <p class="eyebrow">Resort owner</p>
             <h1 class="page-title">User Reviews</h1>
-            <p class="page-sub">Read approved guest reviews and comments about the resort.</p>
+            <p class="page-sub">Read guest comments about the resort.</p>
         </div>
         <a class="btn btn-ghost btn-sm" href="/profile?tab=cottages">My cottages</a>
-    </div>
-
-    <div class="panel reveal">
-        <div class="section-heading">
-            <div>
-                <p class="eyebrow">Approved</p>
-                <h2>What guests are saying</h2>
-            </div>
-            <span class="helper">{{ $ownerReviews->count() }} shown</span>
-        </div>
-
-        @if ($ownerReviews->isEmpty())
-            <div class="empty-state">
-                <h3>No approved reviews yet</h3>
-                <p>Guest reviews will appear here after the admin approves them.</p>
-            </div>
-        @else
-            <div class="review-list">
-                @foreach ($ownerReviews as $review)
-                    <article class="review-card">
-                        <div class="review-card__head">
-                            <div>
-                                <strong>{{ $review->first_name }} {{ $review->last_name }}</strong>
-                                <small>{{ $review->cottage_name }} · {{ format_datetime($review->created_at) }}</small>
-                            </div>
-                            {!! star_html((float) $review->rating) !!}
-                        </div>
-                        <p>{{ $review->comment ?: 'No written comment.' }}</p>
-                    </article>
-                @endforeach
-            </div>
-        @endif
     </div>
 
     <div class="panel reveal">
@@ -145,7 +113,7 @@
                         <button class="btn btn-primary" type="submit">Submit Rating</button>
                         <a class="btn btn-secondary" href="/profile?tab=bookings">Cancel</a>
                     </div>
-                    <p class="helper">Reviews are checked by the admin before they appear publicly.</p>
+                    <p class="helper">Your review is saved immediately and counts toward the cottage rating.</p>
                 </form>
             @endif
         </div>

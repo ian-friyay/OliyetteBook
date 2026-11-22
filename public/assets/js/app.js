@@ -319,6 +319,8 @@
   var summaryBody = document.getElementById("summaryBody");
   var summaryTotal = document.getElementById("summaryTotal");
   var unavailable = [];
+  var autoSameDayCheckout = null;
+  var checkOutTimeTouched = false;
 
   var unavailableNode = document.getElementById("unavailableDates");
   if (unavailableNode) {
@@ -383,8 +385,25 @@
     return display + ":" + minutes + " " + suffix;
   }
 
+  function addHoursToTime(timeValueString, hours) {
+    var time = String(timeValueString || "").split(":");
+    if (time.length < 2) return "";
+    var total = (Number(time[0]) || 0) * 60 + (Number(time[1]) || 0) + hours * 60;
+    if (total > 23 * 60 + 59) total = 23 * 60 + 59;
+    var hour = Math.floor(total / 60);
+    var minute = total % 60;
+    return String(hour).padStart(2, "0") + ":" + String(minute).padStart(2, "0");
+  }
+
   function setAvailabilityMessage(message) {
     var node = document.getElementById("dateAvailability");
+    if (!node) return;
+    node.textContent = message || "";
+    node.hidden = !message;
+  }
+
+  function setSameDayNote(message) {
+    var node = document.getElementById("sameDayNote");
     if (!node) return;
     node.textContent = message || "";
     node.hidden = !message;
@@ -414,13 +433,39 @@
     if (checkInTime && checkInTime.setCustomValidity) checkInTime.setCustomValidity("");
     if (checkOutTime && checkOutTime.setCustomValidity) checkOutTime.setCustomValidity("");
 
+    var sameDay = checkIn.value !== "" && checkIn.value === checkOut.value;
     var inTime = checkInTime ? checkInTime.value : "14:00";
     var outTime = checkOutTime ? checkOutTime.value : "12:00";
     var start = toDateTime(checkIn.value, inTime, "14:00");
     var end = toDateTime(checkOut.value, outTime, "12:00");
+    var autoValue = "";
+
+    if (sameDay && !checkOutTimeTouched && start && end && end <= start) {
+      autoValue = addHoursToTime(inTime, 4);
+      var autoEnd = toDateTime(checkIn.value, autoValue, "18:00");
+      if (autoValue && autoEnd && autoEnd > start) {
+        checkOutTime.value = autoValue;
+        autoSameDayCheckout = autoValue;
+        outTime = autoValue;
+        end = autoEnd;
+      }
+    }
+
+    if (!sameDay && autoSameDayCheckout !== null) {
+      if (checkOutTime.value === autoSameDayCheckout) checkOutTime.value = "12:00";
+      autoSameDayCheckout = null;
+    }
+
+    if (sameDay && autoSameDayCheckout && checkOutTime.value === autoSameDayCheckout) {
+      setSameDayNote("Same-day stay: check-out time set to " + formatTime(autoSameDayCheckout) + ".");
+    } else {
+      setSameDayNote("");
+    }
 
     if (start && end && end <= start) {
-      setAvailabilityMessage("The check-out date and time must be after the check-in date and time.");
+      setAvailabilityMessage(sameDay
+        ? "For same-day bookings, the check-out time must be later than the check-in time."
+        : "The check-out date and time must be after the check-in date and time.");
       if (checkOutTime) checkOutTime.setCustomValidity("Check-out must be after check-in.");
     } else if (checkIn.value && checkOut.value && overlapsUnavailable(checkIn.value, checkOut.value, inTime, outTime)) {
       setAvailabilityMessage("That schedule overlaps an existing reservation. Please choose another date or time.");
@@ -438,7 +483,13 @@
     if (checkInInput) checkInInput.addEventListener("change", syncDateInputs);
     if (checkOutInput) checkOutInput.addEventListener("change", syncDateInputs);
     if (checkInTimeInput) checkInTimeInput.addEventListener("change", syncDateInputs);
-    if (checkOutTimeInput) checkOutTimeInput.addEventListener("change", syncDateInputs);
+    if (checkOutTimeInput) {
+      checkOutTimeInput.addEventListener("input", function () {
+        checkOutTimeTouched = true;
+        autoSameDayCheckout = null;
+      });
+      checkOutTimeInput.addEventListener("change", syncDateInputs);
+    }
     syncDateInputs();
 
     bookingForm.addEventListener("submit", function (event) {

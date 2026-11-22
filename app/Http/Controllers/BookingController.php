@@ -108,7 +108,12 @@ class BookingController extends Controller
         $startAt = new \DateTimeImmutable($checkIn . ' ' . $checkInTime);
         $endAt = new \DateTimeImmutable($checkOut . ' ' . $checkOutTime);
         if ($endAt <= $startAt) {
-            return $this->bookingFail($cottageId, 'The check-out date and time must be after the check-in date and time.');
+            return $this->bookingFail(
+                $cottageId,
+                $checkIn === $checkOut
+                    ? 'For same-day bookings, choose a check-out time later than the check-in time.'
+                    : 'The check-out date and time must be after the check-in date and time.'
+            );
         }
         if ($adults < 1 || $adults > 20 || $children < 0 || $children > 20) {
             return $this->bookingFail($cottageId, 'Please enter a valid number of guests.');

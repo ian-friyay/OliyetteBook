@@ -17,17 +17,6 @@ class ReviewController extends Controller
         $role = $user->role;
 
         if ($role === 'owner') {
-            $ownerReviews = DB::table('reviews as r')
-                ->join('users as u', 'u.id', '=', 'r.user_id')
-                ->join('cottages as c', 'c.id', '=', 'r.cottage_id')
-                ->where('c.owner_id', $userId)
-                ->where('r.status', 'approved')
-                ->select('r.rating', 'r.comment', 'r.created_at', 'u.first_name', 'u.last_name', 'c.name as cottage_name')
-                ->orderByDesc('r.created_at')
-                ->orderByDesc('r.id')
-                ->limit(100)
-                ->get();
-
             $feedback = DB::table('feedback as f')
                 ->join('users as u', 'u.id', '=', 'f.user_id')
                 ->select('f.comment', 'f.created_at', 'u.first_name', 'u.last_name')
@@ -39,7 +28,6 @@ class ReviewController extends Controller
             return view('reviews', [
                 'eligible' => collect(),
                 'selectedBooking' => null,
-                'ownerReviews' => $ownerReviews,
                 'feedback' => $feedback,
                 'role' => $role,
                 'pageTitle' => 'User Reviews',
@@ -69,7 +57,6 @@ class ReviewController extends Controller
         return view('reviews', [
             'eligible' => $eligible,
             'selectedBooking' => $selectedBooking,
-            'ownerReviews' => collect(),
             'feedback' => collect(),
             'role' => $role,
             'pageTitle' => 'User Reviews',
@@ -142,10 +129,10 @@ class ReviewController extends Controller
                 'cottage_id' => $booking->cottage_id,
                 'rating' => $rating,
                 'comment' => $comment !== '' ? $comment : null,
-                'status' => 'pending',
+                'status' => 'approved',
             ]);
 
-            flash('success', 'Thank you! Your review of ' . $booking->cottage_name . ' was submitted for moderation.');
+            flash('success', 'Thank you! Your review of ' . $booking->cottage_name . ' was submitted.');
         } catch (QueryException $e) {
             if ($e->getCode() === '23000') {
                 flash('error', 'This stay has already been reviewed.');

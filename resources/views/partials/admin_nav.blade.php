@@ -6,7 +6,6 @@
             'owners' => (int) \Illuminate\Support\Facades\DB::table('users')->where('role', 'owner')->where('status', 'pending')->count(),
             'cottages' => (int) \Illuminate\Support\Facades\DB::table('cottages')->where('status', 'pending')->count(),
             'bookings' => (int) \Illuminate\Support\Facades\DB::table('bookings')->where('status', 'pending')->count(),
-            'reviews' => (int) \Illuminate\Support\Facades\DB::table('reviews')->where('status', 'pending')->count(),
         ];
     }
 
@@ -18,7 +17,6 @@
         ['key' => 'cottages', 'label' => 'Cottages', 'href' => '/admin/cottages', 'icon' => 'home', 'count' => $adminCounts['cottages']],
         ['key' => 'bookings', 'label' => 'Bookings', 'href' => '/admin/bookings', 'icon' => 'calendar', 'count' => $adminCounts['bookings']],
         ['key' => 'users', 'label' => 'Users', 'href' => '/admin/users', 'icon' => 'user', 'count' => null],
-        ['key' => 'reviews', 'label' => 'User Reviews', 'href' => '/admin/reviews', 'icon' => 'star', 'count' => $adminCounts['reviews']],
         ['key' => 'records', 'label' => 'Records', 'href' => '/admin/records', 'icon' => 'list', 'count' => null],
     ];
 @endphp

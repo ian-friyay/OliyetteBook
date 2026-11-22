@@ -7,12 +7,12 @@
             <div>
                 <p class="eyebrow">Resort administration</p>
                 <h1 class="page-title">Admin Dashboard</h1>
-                <p class="page-sub">Approve accounts and listings, keep bookings moving, and moderate reviews.</p>
+                <p class="page-sub">Approve accounts and listings, keep bookings moving, and follow up on inquiries.</p>
             </div>
             <a class="btn btn-ghost btn-sm" href="/admin/records">Reservation records</a>
         </div>
 
-        <div class="stat-grid">
+        <div class="stat-grid stat-grid--3">
             <a class="stat-card reveal" href="/admin/owners">
                 <span class="stat-card__value">{{ (int) $adminCounts['owners'] }}</span>
                 <span class="stat-card__label">Pending owners</span>
@@ -27,11 +27,6 @@
                 <span class="stat-card__value">{{ (int) $adminCounts['bookings'] }}</span>
                 <span class="stat-card__label">Pending bookings</span>
                 <span class="stat-card__note">Awaiting decision</span>
-            </a>
-            <a class="stat-card reveal stagger-3" href="/admin/reviews">
-                <span class="stat-card__value">{{ (int) $adminCounts['reviews'] }}</span>
-                <span class="stat-card__label">Pending reviews</span>
-                <span class="stat-card__note">Waiting for moderation</span>
             </a>
         </div>
 

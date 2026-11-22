@@ -13,7 +13,6 @@ class DashboardController extends Controller
             'owners' => (int) DB::table('users')->where('role', 'owner')->where('status', 'pending')->count(),
             'cottages' => (int) DB::table('cottages')->where('status', 'pending')->count(),
             'bookings' => (int) DB::table('bookings')->where('status', 'pending')->count(),
-            'reviews' => (int) DB::table('reviews')->where('status', 'pending')->count(),
         ];
 
         $pendingOwners = DB::table('users as u')
