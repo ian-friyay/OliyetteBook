@@ -88,23 +88,59 @@ class BookingController extends Controller
         }
 
         $status = $targets[$action];
-        $booking = DB::table('bookings')->where('id', $bookingId)->first();
 
-        if (! $booking) {
-            flash('error', 'Booking not found.');
+        try {
+            $booking = DB::transaction(function () use ($bookingId, $action, $status, $allowedFrom) {
+                $booking = DB::table('bookings')->where('id', $bookingId)->lockForUpdate()->first();
 
-            return redirect($return);
+                if (! $booking) {
+                    throw new \RuntimeException('Booking not found.');
+                }
+
+                if (! in_array($booking->status, $allowedFrom[$status], true)) {
+                    throw new \RuntimeException('That status change is not allowed from "' . status_label($booking->status) . '".');
+                }
+
+                if ($action === 'approve') {
+                    if ($booking->room_id) {
+                        DB::table('rooms')->where('id', $booking->room_id)->lockForUpdate()->first();
+                    } else {
+                        DB::table('cottages')->where('id', $booking->cottage_id)->lockForUpdate()->first();
+                    }
+
+                    $conflict = DB::table('bookings')
+                        ->where('id', '!=', $bookingId)
+                        ->whereIn('status', ['pending', 'approved'])
+                        ->where('check_in', '<=', $booking->check_out)
+                        ->where('check_out', '>=', $booking->check_in)
+                        ->when($booking->room_id, function ($query) use ($booking) {
+                            $query->where('room_id', $booking->room_id);
+                        }, function ($query) use ($booking) {
+                            $query->where('cottage_id', $booking->cottage_id);
+                        })
+                        ->exists();
+
+                    if ($conflict) {
+                        throw new \RuntimeException(
+                            'Another active booking already covers those dates for this '
+                            . ($booking->room_id ? 'room' : 'cottage')
+                            . '. Decline or cancel it first.'
+                        );
+                    }
+                }
+
+                DB::table('bookings')->where('id', $bookingId)->update(['status' => $status]);
+
+                return $booking;
+            });
+
+            flash('success', 'Booking #' . $booking->receipt_no . ' marked ' . status_label($status) . '.');
+        } catch (\RuntimeException $e) {
+            flash('error', $e->getMessage());
+        } catch (\Throwable $e) {
+            report($e);
+            flash('error', 'We could not update this booking. Please try again.');
         }
-
-        if (! in_array($booking->status, $allowedFrom[$status], true)) {
-            flash('error', 'That status change is not allowed from "' . status_label($booking->status) . '".');
-
-            return redirect($return);
-        }
-
-        DB::table('bookings')->where('id', $bookingId)->update(['status' => $status]);
-
-        flash('success', 'Booking #' . $booking->receipt_no . ' marked ' . status_label($status) . '.');
 
         return redirect($return);
     }

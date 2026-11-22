@@ -160,6 +160,7 @@
 
                 <p class="helper" id="sameDayNote" hidden></p>
                 <p class="field-error" id="dateAvailability" hidden></p>
+                <p class="helper">Each cottage and room accepts one active booking per date. Reserved dates, including the check-out date, cannot be booked by another guest.</p>
 
                 <div class="form-grid">
                     <div class="field">
@@ -172,13 +173,7 @@
                     </div>
                 </div>
 
-                <div class="field">
-                    <label for="payment_method">Payment Method</label>
-                    <select id="payment_method" name="payment_method">
-                        <option value="pay_at_resort">Pay at resort</option>
-                        <option value="gcash">GCash</option>
-                    </select>
-                </div>
+                <p class="helper">Payment is made at the resort when you arrive.</p>
 
                 <div class="field">
                     <label for="special_requests">Special Requests</label>

@@ -94,7 +94,6 @@ class BookingController extends Controller
         $adults = (int) $request->input('adults', 0);
         $children = (int) $request->input('children', 0);
         $requests = trim((string) $request->input('special_requests', ''));
-        $payment = (string) $request->input('payment_method', 'pay_at_resort');
 
         if ($cottageId <= 0 && $roomId <= 0) {
             return $this->bookingFail(0, 'Choose a cottage or room before booking.');
@@ -121,17 +120,13 @@ class BookingController extends Controller
         if (mb_strlen($requests) > 1000) {
             return $this->bookingFail($cottageId, 'Special requests must be 1,000 characters or fewer.');
         }
-        if (! in_array($payment, ['gcash', 'pay_at_resort'], true)) {
-            $payment = 'pay_at_resort';
-        }
-
         $nights = nights_between($checkIn, $checkOut);
         if ($nights > (int) config('booking.max_stay_nights')) {
             return $this->bookingFail($cottageId, 'Stays are limited to ' . config('booking.max_stay_nights') . ' nights.');
         }
 
         try {
-            $receipt = DB::transaction(function () use ($cottageId, $roomId, $isRoom, $checkIn, $checkOut, $checkInTime, $checkOutTime, $startAt, $endAt, $adults, $children, $requests, $payment, $nights, $user) {
+            $receipt = DB::transaction(function () use ($cottageId, $roomId, $isRoom, $checkIn, $checkOut, $checkInTime, $checkOutTime, $adults, $children, $requests, $nights, $user) {
                 if ($isRoom) {
                     $item = Room::where('id', $roomId)->where('status', 'active')->lockForUpdate()->first();
 
@@ -151,29 +146,14 @@ class BookingController extends Controller
                     throw new \RuntimeException('This ' . ($isRoom ? 'room' : 'cottage') . ' holds up to ' . (int) $item->capacity . ' guests.');
                 }
 
-                $existing = Booking::where($isRoom ? 'room_id' : 'cottage_id', $isRoom ? $roomId : $cottageId)
+                $conflict = Booking::where($isRoom ? 'room_id' : 'cottage_id', $isRoom ? $roomId : $cottageId)
                     ->whereIn('status', ['pending', 'approved'])
                     ->where('check_in', '<=', $checkOut)
                     ->where('check_out', '>=', $checkIn)
-                    ->get(['check_in', 'check_out', 'check_in_time', 'check_out_time']);
-
-                $conflict = $existing->contains(function ($booking) use ($startAt, $endAt) {
-                    $existingStart = $this->booking_datetime(
-                        (string) date_string($booking->check_in),
-                        $booking->check_in_time,
-                        '14:00'
-                    );
-                    $existingEnd = $this->booking_datetime(
-                        (string) date_string($booking->check_out),
-                        $booking->check_out_time,
-                        '12:00'
-                    );
-
-                    return $startAt < $existingEnd && $endAt > $existingStart;
-                });
+                    ->exists();
 
                 if ($conflict) {
-                    throw new \RuntimeException('Those dates and times are no longer available. Please choose another schedule.');
+                    throw new \RuntimeException('Those dates are already reserved. Please choose another date.');
                 }
 
                 $receipt = generate_receipt_no();
@@ -194,7 +174,7 @@ class BookingController extends Controller
                     'special_requests' => $requests !== '' ? $requests : null,
                     'entrance_fee' => $entrance,
                     'total_amount' => $total,
-                    'payment_method' => $payment,
+                    'payment_method' => 'pay_at_resort',
                     'status' => 'pending',
                 ]);
 
@@ -258,13 +238,6 @@ class BookingController extends Controller
         $value = is_string($value) ? trim($value) : '';
 
         return preg_match('/^(?:[01]\d|2[0-3]):[0-5]\d$/', $value) === 1 ? $value : $fallback;
-    }
-
-    private function booking_datetime(string $date, mixed $time, string $fallback): \DateTimeImmutable
-    {
-        $value = is_string($time) && $time !== '' ? substr($time, 0, 5) : $fallback;
-
-        return new \DateTimeImmutable($date . ' ' . $value);
     }
 
     private function bookingFail(int $cottageId, string $message)

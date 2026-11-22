@@ -362,15 +362,10 @@
     return date;
   }
 
-  function overlapsUnavailable(checkIn, checkOut, checkInTime, checkOutTime) {
+  function overlapsUnavailable(checkIn, checkOut) {
     if (!checkIn || !checkOut || !unavailable.length) return false;
-    var start = toDateTime(checkIn, checkInTime, "14:00");
-    var end = toDateTime(checkOut, checkOutTime, "12:00");
-    if (!start || !end) return false;
     return unavailable.some(function (range) {
-      var rStart = toDateTime(range.check_in, range.check_in_time, "14:00");
-      var rEnd = toDateTime(range.check_out, range.check_out_time, "12:00");
-      return rStart && rEnd && start < rEnd && end > rStart;
+      return checkIn <= range.check_out && checkOut >= range.check_in;
     });
   }
 
@@ -467,9 +462,9 @@
         ? "For same-day bookings, the check-out time must be later than the check-in time."
         : "The check-out date and time must be after the check-in date and time.");
       if (checkOutTime) checkOutTime.setCustomValidity("Check-out must be after check-in.");
-    } else if (checkIn.value && checkOut.value && overlapsUnavailable(checkIn.value, checkOut.value, inTime, outTime)) {
-      setAvailabilityMessage("That schedule overlaps an existing reservation. Please choose another date or time.");
-      if (checkOut) checkOut.setCustomValidity("Schedule overlaps an existing reservation.");
+    } else if (checkIn.value && checkOut.value && overlapsUnavailable(checkIn.value, checkOut.value)) {
+      setAvailabilityMessage("Those dates are already reserved. Please choose another date.");
+      if (checkOut) checkOut.setCustomValidity("Those dates are already reserved.");
     } else {
       setAvailabilityMessage("");
     }

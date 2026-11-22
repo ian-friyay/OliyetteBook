@@ -334,7 +334,7 @@
                                         <h4>Booking details</h4>
                                         <p>{{ format_booking_range($booking->check_in, $booking->check_out, $booking->check_in_time, $booking->check_out_time) }}</p>
                                         <p class="text-muted">{{ (string) date_string($booking->check_in) === (string) date_string($booking->check_out) ? '1 day (day use)' : $nights . ' night' . ($nights === 1 ? '' : 's') }} · {{ $guestCount }} guest{{ $guestCount === 1 ? '' : 's' }}</p>
-                                        <p class="text-muted">{{ $booking->payment_method === 'gcash' ? 'GCash' : 'Pay at resort' }}</p>
+                                        <p class="text-muted">Pay at resort</p>
                                     </div>
                                     <div class="detail-block">
                                         <h4>Booked on</h4>
